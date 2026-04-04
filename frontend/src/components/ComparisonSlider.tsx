@@ -39,7 +39,7 @@ function ComparisonSlider({ originalUrl, protectedUrl }: ComparisonSliderProps) 
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
-      {/* Protected (full background) */}
+      {/* Protected (full, behind) */}
       <img
         src={protectedUrl}
         alt="Protected"
@@ -47,19 +47,14 @@ function ComparisonSlider({ originalUrl, protectedUrl }: ComparisonSliderProps) 
         draggable={false}
       />
 
-      {/* Original (clipped to left of slider) */}
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${position}%` }}
-      >
-        <img
-          src={originalUrl}
-          alt="Original"
-          className="absolute inset-0 w-full h-full object-contain"
-          style={{ width: containerRef.current?.offsetWidth || '100%' }}
-          draggable={false}
-        />
-      </div>
+      {/* Original (full, on top, clipped at slider position) */}
+      <img
+        src={originalUrl}
+        alt="Original"
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+        draggable={false}
+      />
 
       {/* Slider line + handle */}
       <div
