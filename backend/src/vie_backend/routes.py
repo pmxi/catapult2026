@@ -2,11 +2,11 @@ import logging
 import uuid
 import shutil
 from pathlib import Path
+from typing import Optional
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, UploadFile
 
 from vie_backend.config import UPLOAD_DIR
-from vie_backend.models import ProcessResponse
 from vie_backend.services.tweaker import TweakerService
 from vie_backend.services.comparison import ComparisonService
 from vie_backend.services.detection import DetectionService
@@ -29,55 +29,75 @@ def save_upload(file: UploadFile) -> Path:
     return path
 
 
-@router.post("/process", response_model=ProcessResponse)
+@router.post("/process")
 async def process_images(
     original_files: list[UploadFile] = File(...),
-    target_file: UploadFile = File(...),
-) -> ProcessResponse:
-    # Save uploaded files
+    reference_files: Optional[list[UploadFile]] = File(None),
+):
     original_paths = [save_upload(f) for f in original_files]
-    target_path = save_upload(target_file)
 
-    # Tweak the target image (stub — returns original for now)
-    tweaked_path = tweaker.tweak(target_path)
+    # For each original: tweak it, detect faces, compare original vs tweaked
+    protected_results = []
+    tweaked_face_paths: list[tuple[str, str]] = []  # (filename, face_path)
 
-    # Detect face in tweaked image
-    tweaked_detection = detector.detect_and_extract(str(tweaked_path))
-    if tweaked_detection.get("error"):
-        logger.warning("Face detection failed on target: %s", tweaked_detection["error"])
-
-    # Compare extracted face crops
-    comparisons = []
     for orig_path, orig_file in zip(original_paths, original_files):
-        orig_detection = detector.detect_and_extract(str(orig_path))
-        if orig_detection.get("error"):
-            logger.warning(
-                "Face detection failed on %s: %s",
-                orig_file.filename,
-                orig_detection["error"],
-            )
+        tweaked_path = tweaker.tweak(orig_path)
 
-        # Use face crops if available, fall back to full images
-        compare_img1 = orig_detection.get("face_path") or str(orig_path)
-        compare_img2 = tweaked_detection.get("face_path") or str(tweaked_path)
-        result = comparator.compare(compare_img1, compare_img2)
+        orig_det = detector.detect_and_extract(str(orig_path))
+        tweaked_det = detector.detect_and_extract(str(tweaked_path))
 
-        comparisons.append({
+        if orig_det.get("error"):
+            logger.warning("Face detection failed on %s: %s", orig_file.filename, orig_det["error"])
+        if tweaked_det.get("error"):
+            logger.warning("Face detection failed on tweaked %s: %s", orig_file.filename, tweaked_det["error"])
+
+        orig_face = orig_det.get("face_path") or str(orig_path)
+        tweaked_face = tweaked_det.get("face_path") or str(tweaked_path)
+
+        protection = comparator.compare(orig_face, tweaked_face)
+
+        name = Path(orig_file.filename or "image.jpg").stem
+        ext = Path(orig_file.filename or "image.jpg").suffix
+
+        protected_results.append({
             "original_filename": orig_file.filename,
-            "original_annotated_url": orig_detection.get("annotated_url"),
-            "original_face_url": orig_detection.get("face_url"),
-            "tweaked_face_url": tweaked_detection.get("face_url"),
-            **result,
+            "original_url": f"/uploads/{orig_path.name}",
+            "tweaked_image_url": f"/uploads/{tweaked_path.name}",
+            "download_name": f"{name}_VIE{ext}",
+            "original_annotated_url": orig_det.get("annotated_url"),
+            "original_face_url": orig_det.get("face_url"),
+            "tweaked_annotated_url": tweaked_det.get("annotated_url"),
+            "tweaked_face_url": tweaked_det.get("face_url"),
+            "protection": protection,
         })
 
-    # Build download filename from original target name
-    original_name = Path(target_file.filename or "image.jpg").stem
-    original_ext = Path(target_file.filename or "image.jpg").suffix
-    download_name = f"{original_name}_VIE{original_ext}"
+        tweaked_face_paths.append((orig_file.filename or "unknown", tweaked_face))
 
-    return ProcessResponse(
-        tweaked_image_url=f"/uploads/{tweaked_path.name}",
-        tweaked_annotated_url=tweaked_detection.get("annotated_url"),
-        download_name=download_name,
-        comparisons=comparisons,
-    )
+    # Compare reference images against all tweaked faces
+    reference_comparisons = []
+    if reference_files:
+        for ref_file in reference_files:
+            ref_path = save_upload(ref_file)
+            ref_det = detector.detect_and_extract(str(ref_path))
+            ref_face = ref_det.get("face_path") or str(ref_path)
+
+            comparisons = []
+            for tweaked_filename, tweaked_face in tweaked_face_paths:
+                result = comparator.compare(ref_face, tweaked_face)
+                comparisons.append({
+                    "tweaked_filename": tweaked_filename,
+                    "deepface": result["deepface"],
+                    "insightface": result["insightface"],
+                })
+
+            reference_comparisons.append({
+                "reference_filename": ref_file.filename,
+                "reference_annotated_url": ref_det.get("annotated_url"),
+                "reference_face_url": ref_det.get("face_url"),
+                "comparisons": comparisons,
+            })
+
+    return {
+        "protected": protected_results,
+        "reference_comparisons": reference_comparisons,
+    }

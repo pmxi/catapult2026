@@ -16,17 +16,36 @@ class InsightFaceResult(BaseModel):
     error: str | None = None
 
 
-class ComparisonItem(BaseModel):
-    original_filename: str | None
-    original_annotated_url: str | None
-    original_face_url: str | None
-    tweaked_face_url: str | None
+class ProtectionResult(BaseModel):
     deepface: DeepFaceResult
     insightface: InsightFaceResult
 
 
-class ProcessResponse(BaseModel):
+class ProtectedItem(BaseModel):
+    original_filename: str | None
+    original_url: str
     tweaked_image_url: str
-    tweaked_annotated_url: str | None
     download_name: str
-    comparisons: list[ComparisonItem]
+    original_annotated_url: str | None
+    original_face_url: str | None
+    tweaked_annotated_url: str | None
+    tweaked_face_url: str | None
+    protection: ProtectionResult
+
+
+class ReferenceComparison(BaseModel):
+    tweaked_filename: str
+    deepface: DeepFaceResult
+    insightface: InsightFaceResult
+
+
+class ReferenceResult(BaseModel):
+    reference_filename: str | None
+    reference_annotated_url: str | None
+    reference_face_url: str | None
+    comparisons: list[ReferenceComparison]
+
+
+class ProcessResponse(BaseModel):
+    protected: list[ProtectedItem]
+    reference_comparisons: list[ReferenceResult]
