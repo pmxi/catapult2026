@@ -1,7 +1,5 @@
 import { useState, useRef } from 'react'
 
-const API_URL = '/api'
-
 interface ComparisonResult {
   original_filename: string
   deepface: {
@@ -19,6 +17,7 @@ interface ComparisonResult {
 
 interface ProcessResponse {
   tweaked_image_url: string
+  download_name: string
   comparisons: ComparisonResult[]
 }
 
@@ -27,21 +26,35 @@ function Home() {
   const [targetFile, setTargetFile] = useState<File | null>(null)
   const [results, setResults] = useState<ProcessResponse | null>(null)
   const [loading, setLoading] = useState(false)
+  const [elapsed, setElapsed] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const originalInputRef = useRef<HTMLInputElement>(null)
   const targetInputRef = useRef<HTMLInputElement>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleOriginalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setOriginalFiles(Array.from(e.target.files))
+      const newFiles = Array.from(e.target.files)
+      setOriginalFiles((prev) => [...prev, ...newFiles])
     }
+    e.target.value = ''
   }
 
   const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setTargetFile(e.target.files[0])
+      const file = e.target.files[0]
+      setTargetFile(file)
     }
+    e.target.value = ''
+  }
+
+  const removeOriginal = (index: number) => {
+    setOriginalFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const removeTarget = () => {
+    setTargetFile(null)
   }
 
   const handleProcess = async () => {
@@ -50,13 +63,19 @@ function Home() {
     setLoading(true)
     setResults(null)
     setError(null)
+    setElapsed(null)
+
+    const start = Date.now()
+    timerRef.current = setInterval(() => {
+      setElapsed(Math.round((Date.now() - start) / 1000))
+    }, 1000)
 
     try {
       const formData = new FormData()
       originalFiles.forEach((f) => formData.append('original_files', f))
       formData.append('target_file', targetFile)
 
-      const res = await fetch(`${API_URL}/process`, {
+      const res = await fetch('/api/process', {
         method: 'POST',
         body: formData,
       })
@@ -68,11 +87,25 @@ function Home() {
 
       const data: ProcessResponse = await res.json()
       setResults(data)
+      setElapsed(Math.round((Date.now() - start) / 1000))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setLoading(false)
+      if (timerRef.current) clearInterval(timerRef.current)
     }
+  }
+
+  const handleDownload = async () => {
+    if (!results) return
+    const res = await fetch(results.tweaked_image_url)
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = results.download_name
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const similarityColor = (score: number) => {
@@ -80,6 +113,8 @@ function Home() {
     if (score < 0.6) return 'text-yellow-400'
     return 'text-red-400'
   }
+
+  const getPreviewUrl = (file: File) => URL.createObjectURL(file)
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -99,7 +134,7 @@ function Home() {
             </p>
             <div
               onClick={() => originalInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center cursor-pointer hover:border-gray-500 transition-colors"
+              className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center cursor-pointer hover:border-gray-500 transition-colors"
             >
               <input
                 ref={originalInputRef}
@@ -109,23 +144,30 @@ function Home() {
                 onChange={handleOriginalChange}
                 className="hidden"
               />
-              {originalFiles.length > 0 ? (
-                <div>
-                  <p className="text-green-400 font-medium">
-                    {originalFiles.length} file(s) selected
-                  </p>
-                  <ul className="text-sm text-gray-500 mt-2">
-                    {originalFiles.map((f, i) => (
-                      <li key={i}>{f.name}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-gray-500">
-                  Click to upload or drag and drop
-                </p>
-              )}
+              <p className="text-gray-500">Click to upload or drag and drop</p>
             </div>
+            {originalFiles.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {originalFiles.map((f, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={getPreviewUrl(f)}
+                      alt={f.name}
+                      className="w-full h-24 object-cover rounded-lg border border-gray-800"
+                    />
+                    <button
+                      onClick={() => removeOriginal(i)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      X
+                    </button>
+                    <p className="text-xs text-gray-500 mt-1 truncate">
+                      {f.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Target face upload */}
@@ -134,25 +176,38 @@ function Home() {
             <p className="text-sm text-gray-500 mb-3">
               Upload the photo to protect with adversarial encoding.
             </p>
-            <div
-              onClick={() => targetInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center cursor-pointer hover:border-gray-500 transition-colors"
-            >
-              <input
-                ref={targetInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleTargetChange}
-                className="hidden"
-              />
-              {targetFile ? (
-                <p className="text-green-400 font-medium">{targetFile.name}</p>
-              ) : (
-                <p className="text-gray-500">
-                  Click to upload or drag and drop
+            {targetFile ? (
+              <div className="relative group">
+                <img
+                  src={getPreviewUrl(targetFile)}
+                  alt={targetFile.name}
+                  className="w-full max-h-48 object-cover rounded-xl border border-gray-800"
+                />
+                <button
+                  onClick={removeTarget}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  X
+                </button>
+                <p className="text-xs text-gray-500 mt-2 truncate">
+                  {targetFile.name}
                 </p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => targetInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center cursor-pointer hover:border-gray-500 transition-colors"
+              >
+                <input
+                  ref={targetInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleTargetChange}
+                  className="hidden"
+                />
+                <p className="text-gray-500">Click to upload or drag and drop</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -162,7 +217,11 @@ function Home() {
           disabled={loading || !targetFile || originalFiles.length === 0}
           className="w-full py-3 rounded-xl font-semibold text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-white text-black hover:bg-gray-200"
         >
-          {loading ? 'Processing...' : 'Process'}
+          {loading
+            ? `Processing... (${elapsed ?? 0}s)`
+            : elapsed !== null
+              ? `Processed (${elapsed}s)`
+              : 'Process'}
         </button>
 
         {/* Error */}
@@ -182,10 +241,16 @@ function Home() {
               <div className="mb-8">
                 <h3 className="text-lg font-semibold mb-3">Tweaked Image</h3>
                 <img
-                  src={`${API_URL}${results.tweaked_image_url}`}
+                  src={results.tweaked_image_url}
                   alt="Tweaked"
                   className="rounded-xl max-w-sm border border-gray-800"
                 />
+                <button
+                  onClick={handleDownload}
+                  className="mt-3 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Download {results.download_name}
+                </button>
               </div>
             )}
 

@@ -46,7 +46,13 @@ async def process_images(
             **result,
         })
 
+    # Build download filename from original target name
+    original_name = Path(target_file.filename or "image.jpg").stem
+    original_ext = Path(target_file.filename or "image.jpg").suffix
+    download_name = f"{original_name}_VIE{original_ext}"
+
     return {
         "tweaked_image_url": f"/uploads/{tweaked_path.name}",
+        "download_name": download_name,
         "comparisons": comparisons,
     }
