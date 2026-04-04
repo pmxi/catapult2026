@@ -1,17 +1,19 @@
+import logging
 import uuid
 import shutil
 from pathlib import Path
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from app.services.tweaker import TweakerService
-from app.services.comparison import ComparisonService
-from app.services.detection import DetectionService
+from vie_backend.config import UPLOAD_DIR
+from vie_backend.models import ProcessResponse
+from vie_backend.services.tweaker import TweakerService
+from vie_backend.services.comparison import ComparisonService
+from vie_backend.services.detection import DetectionService
+
+logger = logging.getLogger("vie_backend")
 
 router = APIRouter()
-
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
 
 tweaker = TweakerService()
 comparator = ComparisonService()
@@ -27,11 +29,11 @@ def save_upload(file: UploadFile) -> Path:
     return path
 
 
-@router.post("/process")
+@router.post("/process", response_model=ProcessResponse)
 async def process_images(
     original_files: list[UploadFile] = File(...),
     target_file: UploadFile = File(...),
-):
+) -> ProcessResponse:
     # Save uploaded files
     original_paths = [save_upload(f) for f in original_files]
     target_path = save_upload(target_file)
@@ -41,11 +43,19 @@ async def process_images(
 
     # Detect face in tweaked image
     tweaked_detection = detector.detect_and_extract(str(tweaked_path))
+    if tweaked_detection.get("error"):
+        logger.warning("Face detection failed on target: %s", tweaked_detection["error"])
 
     # Compare extracted face crops
     comparisons = []
     for orig_path, orig_file in zip(original_paths, original_files):
         orig_detection = detector.detect_and_extract(str(orig_path))
+        if orig_detection.get("error"):
+            logger.warning(
+                "Face detection failed on %s: %s",
+                orig_file.filename,
+                orig_detection["error"],
+            )
 
         # Use face crops if available, fall back to full images
         compare_img1 = orig_detection.get("face_path") or str(orig_path)
@@ -65,9 +75,9 @@ async def process_images(
     original_ext = Path(target_file.filename or "image.jpg").suffix
     download_name = f"{original_name}_VIE{original_ext}"
 
-    return {
-        "tweaked_image_url": f"/uploads/{tweaked_path.name}",
-        "tweaked_annotated_url": tweaked_detection.get("annotated_url"),
-        "download_name": download_name,
-        "comparisons": comparisons,
-    }
+    return ProcessResponse(
+        tweaked_image_url=f"/uploads/{tweaked_path.name}",
+        tweaked_annotated_url=tweaked_detection.get("annotated_url"),
+        download_name=download_name,
+        comparisons=comparisons,
+    )

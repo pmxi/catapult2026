@@ -22,3 +22,4 @@ services:
       - ./backend/uploads:/app/uploads
     environment:
       - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
