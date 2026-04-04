@@ -6,12 +6,14 @@ const HERO_IMG =
 const PROBLEM_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDjt2bGwhaYzTib7XY2QmBwaRSWL_PODqv1v4130ffueXGrpyeUzo-I_slCICxQM7p69eTzUKzn2btDqNobenK1Jvw9yaZbb8qM68rbQtdaXkCV0Mftd3Po6Y6MOdsdIROFRBDNif4-HgU8Phl2r5R6JlqrZ9fZfpuTRZWOFioakt05MbKX-Ovu7T_nIeLKPB_CFELJVwJ9u5m4mc8fZAR2C-e9CzRA88t_rYTT_XF8So74Z-tszU1koKR3VBcin8Pm73SJ3jqhhAE'
 
+const BASE = import.meta.env.BASE_URL
+
 const TEAM = [
-  { name: 'JongIn Lee', img: '/images/JongInLee.jpeg' },
-  { name: 'Tim', img: '/images/Tim.jpeg' },
-  { name: 'Benjamin', img: '/images/Benjamin.jpeg' },
-  { name: 'Paras', img: '/images/Paras.jpeg' },
-  { name: 'Angela', img: '/images/Angela.png' },
+  { name: 'JongIn Lee', img: `${BASE}images/JongInLee.jpeg` },
+  { name: 'Tim', img: `${BASE}images/Tim.jpeg` },
+  { name: 'Benjamin', img: `${BASE}images/Benjamin.jpeg` },
+  { name: 'Paras', img: `${BASE}images/Paras.jpeg` },
+  { name: 'Angela', img: `${BASE}images/Angela.png` },
 ]
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
