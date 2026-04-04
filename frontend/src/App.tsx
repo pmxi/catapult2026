@@ -6,7 +6,7 @@ import Tool from './pages/Tool'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/catapult2026">
       <NavBar />
       <Routes>
         <Route path="/" element={<Landing />} />

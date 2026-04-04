@@ -81,7 +81,7 @@ function Tool() {
       originalFiles.forEach((f) => formData.append('original_files', f))
       formData.append('target_file', targetFile)
 
-      const res = await fetch('/api/process', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/process`, {
         method: 'POST',
         body: formData,
       })
@@ -104,7 +104,8 @@ function Tool() {
 
   const handleDownload = async () => {
     if (!results) return
-    const res = await fetch(results.tweaked_image_url)
+    const url_prefix = results.tweaked_image_url.startsWith('http') ? '' : (import.meta.env.VITE_API_URL || '')
+    const res = await fetch(`${url_prefix}${results.tweaked_image_url}`)
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
