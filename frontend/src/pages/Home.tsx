@@ -182,7 +182,7 @@ function Home() {
             </p>
             {targetFile ? (
               <div>
-                <div className="relative inline-block">
+                <div className="relative inline-block group">
                   <img
                     src={getPreviewUrl(targetFile)}
                     alt={targetFile.name}
