@@ -71,14 +71,14 @@ function ProcessingAnimation({
         {stepLabels.map((label, i) => (
           <div
             key={i}
-            className={`px-3 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-500 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-label tracking-wider transition-all duration-500 ${
               step === i
                 ? 'neo-step-active'
                 : step > i ||
                     (i === 2 && step === 3) ||
                     (i === 3 && step === 2 && cycleCount > 0)
                   ? 'neo-step-done'
-                  : 'text-gray-600'
+                  : 'text-on-surface-variant/40'
             }`}
           >
             {label}
