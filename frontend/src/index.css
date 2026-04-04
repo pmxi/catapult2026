@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes scan-h {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+@keyframes scan-v {
+  0% { left: 0%; }
+  100% { left: 100%; }
+}
+
+@keyframes scan-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: 0.75rem;
+}
+
+.scan-line-h {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22c55e, transparent);
+  box-shadow: 0 0 12px 2px rgba(34, 197, 94, 0.5);
+  animation: scan-h 2s ease-in-out infinite alternate, scan-glow 2s ease-in-out infinite;
+}
+
+.scan-line-v {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #22c55e, transparent);
+  box-shadow: 0 0 12px 2px rgba(34, 197, 94, 0.5);
+  animation: scan-v 2.6s ease-in-out infinite alternate, scan-glow 2.6s ease-in-out infinite;
+}
+
+.scan-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: scan-glow 3s ease-in-out infinite;
+}
+

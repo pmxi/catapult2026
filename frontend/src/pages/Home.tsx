@@ -2,6 +2,9 @@ import { useState, useRef } from 'react'
 
 interface ComparisonResult {
   original_filename: string
+  original_annotated_url: string | null
+  original_face_url: string | null
+  tweaked_face_url: string | null
   deepface: {
     verified: boolean
     distance: number
@@ -17,6 +20,7 @@ interface ComparisonResult {
 
 interface ProcessResponse {
   tweaked_image_url: string
+  tweaked_annotated_url: string | null
   download_name: string
   comparisons: ComparisonResult[]
 }
@@ -177,18 +181,29 @@ function Home() {
               Upload the photo to protect with adversarial encoding.
             </p>
             {targetFile ? (
-              <div className="relative group">
-                <img
-                  src={getPreviewUrl(targetFile)}
-                  alt={targetFile.name}
-                  className="w-full max-h-48 object-cover rounded-xl border border-gray-800"
-                />
-                <button
-                  onClick={removeTarget}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  X
-                </button>
+              <div>
+                <div className="relative inline-block">
+                  <img
+                    src={getPreviewUrl(targetFile)}
+                    alt={targetFile.name}
+                    className={`max-h-48 object-cover rounded-xl border ${loading ? 'border-green-500/50' : 'border-gray-800'}`}
+                  />
+                  {loading && (
+                    <div className="scan-overlay">
+                      <div className="scan-grid" />
+                      <div className="scan-line-h" />
+                      <div className="scan-line-v" />
+                    </div>
+                  )}
+                  {!loading && (
+                    <button
+                      onClick={removeTarget}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      X
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-2 truncate">
                   {targetFile.name}
                 </p>
@@ -236,37 +251,96 @@ function Home() {
           <div className="mt-10">
             <h2 className="text-2xl font-bold mb-6">Results</h2>
 
-            {/* Tweaked image */}
-            {results.tweaked_image_url && (
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-3">Tweaked Image</h3>
-                <img
-                  src={results.tweaked_image_url}
-                  alt="Tweaked"
-                  className="rounded-xl max-w-sm border border-gray-800"
-                />
-                <button
-                  onClick={handleDownload}
-                  className="mt-3 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Download {results.download_name}
-                </button>
+            {/* Tweaked image with detection box */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-3">Tweaked Image</h3>
+              <div className="flex gap-4 items-start flex-wrap">
+                {results.tweaked_annotated_url && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Face Detection
+                    </p>
+                    <img
+                      src={results.tweaked_annotated_url}
+                      alt="Tweaked with detection"
+                      className="rounded-xl max-w-xs border border-gray-800"
+                    />
+                  </div>
+                )}
+                {results.tweaked_image_url && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Output</p>
+                    <img
+                      src={results.tweaked_image_url}
+                      alt="Tweaked"
+                      className="rounded-xl max-w-xs border border-gray-800"
+                    />
+                    <button
+                      onClick={handleDownload}
+                      className="mt-3 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Download {results.download_name}
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            {/* Comparison scores */}
+            {/* Comparisons */}
             <h3 className="text-lg font-semibold mb-4">
               Similarity Scores (lower = better protection)
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {results.comparisons.map((comp, i) => (
                 <div
                   key={i}
                   className="bg-gray-900 rounded-xl p-5 border border-gray-800"
                 >
-                  <p className="font-medium mb-3">
+                  <p className="font-medium mb-4">
                     vs. {comp.original_filename}
                   </p>
+
+                  {/* Face images used for comparison */}
+                  <div className="flex gap-4 mb-4 items-start flex-wrap">
+                    {comp.original_annotated_url && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Original (detected)
+                        </p>
+                        <img
+                          src={comp.original_annotated_url}
+                          alt="Original detected"
+                          className="h-32 rounded-lg border border-gray-700"
+                        />
+                      </div>
+                    )}
+                    {comp.original_face_url && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Original (extracted)
+                        </p>
+                        <img
+                          src={comp.original_face_url}
+                          alt="Original face"
+                          className="h-32 rounded-lg border border-gray-700"
+                        />
+                      </div>
+                    )}
+                    {comp.tweaked_face_url && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Tweaked (extracted)
+                        </p>
+                        <img
+                          src={comp.tweaked_face_url}
+                          alt="Tweaked face"
+                          className="h-32 rounded-lg border border-gray-700"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Scores */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-500 mb-1">DeepFace</p>

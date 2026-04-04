@@ -6,6 +6,7 @@ from fastapi import APIRouter, File, UploadFile
 
 from app.services.tweaker import TweakerService
 from app.services.comparison import ComparisonService
+from app.services.detection import DetectionService
 
 router = APIRouter()
 
@@ -14,6 +15,7 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 tweaker = TweakerService()
 comparator = ComparisonService()
+detector = DetectionService()
 
 
 def save_upload(file: UploadFile) -> Path:
@@ -37,12 +39,24 @@ async def process_images(
     # Tweak the target image (stub — returns original for now)
     tweaked_path = tweaker.tweak(target_path)
 
-    # Compare tweaked image against each original
+    # Detect face in tweaked image
+    tweaked_detection = detector.detect_and_extract(str(tweaked_path))
+
+    # Compare extracted face crops
     comparisons = []
     for orig_path, orig_file in zip(original_paths, original_files):
-        result = comparator.compare(str(orig_path), str(tweaked_path))
+        orig_detection = detector.detect_and_extract(str(orig_path))
+
+        # Use face crops if available, fall back to full images
+        compare_img1 = orig_detection.get("face_path") or str(orig_path)
+        compare_img2 = tweaked_detection.get("face_path") or str(tweaked_path)
+        result = comparator.compare(compare_img1, compare_img2)
+
         comparisons.append({
             "original_filename": orig_file.filename,
+            "original_annotated_url": orig_detection.get("annotated_url"),
+            "original_face_url": orig_detection.get("face_url"),
+            "tweaked_face_url": tweaked_detection.get("face_url"),
             **result,
         })
 
@@ -53,6 +67,7 @@ async def process_images(
 
     return {
         "tweaked_image_url": f"/uploads/{tweaked_path.name}",
+        "tweaked_annotated_url": tweaked_detection.get("annotated_url"),
         "download_name": download_name,
         "comparisons": comparisons,
     }
