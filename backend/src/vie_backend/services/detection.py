@@ -1,12 +1,11 @@
 import uuid
-from pathlib import Path
 
 import cv2
 import numpy as np
 import mediapipe as mp
 from PIL import Image, ImageOps
 
-UPLOAD_DIR = Path("uploads")
+from vie_backend.config import UPLOAD_DIR
 
 
 def _load_image_cv2(image_path: str) -> np.ndarray:
