@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Scan overlay (target image during processing) ── */
+
 @keyframes scan-h {
   0% { top: 0%; }
   100% { top: 100%; }
@@ -55,3 +57,366 @@
   animation: scan-glow 3s ease-in-out infinite;
 }
 
+/* ── Neo processing animation ── */
+
+.neo-container {
+  background: linear-gradient(135deg, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(0, 180, 255, 0.15);
+  box-shadow:
+    0 0 30px rgba(0, 120, 255, 0.08),
+    inset 0 1px 0 rgba(0, 180, 255, 0.05);
+}
+
+/* Step indicators */
+.neo-step-active {
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.neo-step-done {
+  color: rgba(0, 212, 255, 0.4);
+}
+
+/* Fade in */
+.neo-fade-in {
+  animation: neo-fade 0.5s ease-out;
+}
+
+@keyframes neo-fade {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ── Step 0: Detecting ── */
+
+.neo-detect-box {
+  position: absolute;
+  inset: 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  animation: neo-box-draw 1.5s ease-out forwards;
+}
+
+@keyframes neo-box-draw {
+  0% {
+    border-color: transparent;
+    box-shadow: none;
+  }
+  25% {
+    border-top-color: #00d4ff;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  50% {
+    border-top-color: #00d4ff;
+    border-right-color: #00d4ff;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  75% {
+    border-top-color: #00d4ff;
+    border-right-color: #00d4ff;
+    border-bottom-color: #00d4ff;
+    border-left-color: transparent;
+  }
+  100% {
+    border-color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3), inset 0 0 15px rgba(0, 212, 255, 0.05);
+  }
+}
+
+.neo-detect-scanline {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+  animation: neo-scanline-sweep 2s ease-in-out infinite;
+  border-radius: 1px;
+}
+
+@keyframes neo-scanline-sweep {
+  0% { top: 8px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: calc(100% - 10px); opacity: 0; }
+}
+
+/* Loading dots */
+.neo-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.neo-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00d4ff;
+  animation: neo-dot-pulse 1.4s ease-in-out infinite;
+}
+
+.neo-dots span:nth-child(2) { animation-delay: 0.2s; }
+.neo-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes neo-dot-pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── Step 1: Extracting ── */
+
+.neo-crop-zoom {
+  position: absolute;
+  inset: 20%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  animation: neo-crop-extract 1.8s ease-out forwards;
+}
+
+@keyframes neo-crop-extract {
+  0% {
+    inset: 30%;
+    opacity: 0;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  40% {
+    opacity: 1;
+    border-color: #00d4ff;
+  }
+  100% {
+    inset: 10%;
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+  }
+}
+
+/* Arrow */
+.neo-arrow-flow {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 60px;
+  height: 4px;
+}
+
+.neo-arrow-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d4ff);
+  animation: neo-arrow-grow 1s ease-out forwards;
+}
+
+.neo-arrow-head {
+  position: absolute;
+  right: -2px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 10px solid #00d4ff;
+  animation: neo-arrow-appear 1s ease-out 0.5s both;
+}
+
+@keyframes neo-arrow-grow {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes neo-arrow-appear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Step 2: Encoding ── */
+
+.neo-glitch {
+  animation: neo-glitch-jitter 0.15s infinite;
+}
+
+@keyframes neo-glitch-jitter {
+  0% { transform: scale(1.8) translate(0, 0); }
+  25% { transform: scale(1.8) translate(-2px, 1px); }
+  50% { transform: scale(1.8) translate(1px, -2px); }
+  75% { transform: scale(1.8) translate(-1px, -1px); }
+  100% { transform: scale(1.8) translate(2px, 0); }
+}
+
+/* RGB split */
+.neo-rgb-r, .neo-rgb-b {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.neo-rgb-r {
+  animation: neo-rgb-shift-r 0.2s infinite alternate;
+}
+
+.neo-rgb-r img {
+  filter: saturate(0) brightness(0.8);
+  opacity: 0.4;
+}
+
+.neo-rgb-b {
+  animation: neo-rgb-shift-b 0.25s infinite alternate;
+}
+
+.neo-rgb-b img {
+  filter: saturate(0) brightness(0.6) sepia(1) hue-rotate(180deg) saturate(3);
+  opacity: 0.3;
+}
+
+@keyframes neo-rgb-shift-r {
+  from { transform: translate(3px, -1px); }
+  to { transform: translate(-2px, 1px); }
+}
+
+@keyframes neo-rgb-shift-b {
+  from { transform: translate(-2px, 2px); }
+  to { transform: translate(3px, -1px); }
+}
+
+/* Scanlines overlay */
+.neo-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 20, 40, 0.3) 2px,
+    rgba(0, 20, 40, 0.3) 4px
+  );
+  pointer-events: none;
+  animation: neo-scanlines-move 0.5s linear infinite;
+}
+
+@keyframes neo-scanlines-move {
+  from { transform: translateY(0); }
+  to { transform: translateY(4px); }
+}
+
+/* Solid silhouette (first cycle) */
+.neo-silhouette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #001a33, #003366);
+  animation: neo-silhouette-in 2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes neo-silhouette-in {
+  0% { opacity: 0; }
+  30% { opacity: 0; }
+  100% { opacity: 0.85; }
+}
+
+/* Blurred/pixelated mask (subsequent cycles) */
+.neo-blur-mask {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  animation: neo-blur-in 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+.neo-blur-mask img {
+  filter: blur(8px) contrast(1.4) saturate(0.3) brightness(0.7);
+}
+
+@keyframes neo-blur-in {
+  0% { opacity: 0; }
+  40% { opacity: 0; }
+  100% { opacity: 0.9; }
+}
+
+/* Encode label + progress */
+.neo-encode-label {
+  color: #00d4ff;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  animation: neo-label-pulse 1s ease-in-out infinite;
+}
+
+@keyframes neo-label-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.neo-progress-bar {
+  width: 120px;
+  height: 3px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.neo-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #003366, #00d4ff);
+  border-radius: 2px;
+  animation: neo-progress 2.2s ease-in-out infinite;
+}
+
+@keyframes neo-progress {
+  0% { width: 0%; }
+  50% { width: 80%; }
+  100% { width: 100%; }
+}
+
+/* ── Step 3: Comparing ── */
+
+.neo-slide-in-left {
+  animation: neo-slide-l 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.neo-slide-in-right {
+  animation: neo-slide-r 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes neo-slide-l {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes neo-slide-r {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.neo-border-glow {
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+}
+
+.neo-vs-badge {
+  font-family: monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  padding: 4px 12px;
+  animation: neo-vs-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes neo-vs-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 212, 255, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+}
+
+.neo-percent {
+  color: #00d4ff;
+  text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+}

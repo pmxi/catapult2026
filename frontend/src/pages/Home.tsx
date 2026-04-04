@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import ProcessingAnimation from '../components/ProcessingAnimation'
 
 interface ComparisonResult {
   original_filename: string
@@ -238,6 +239,14 @@ function Home() {
               ? `Processed (${elapsed}s)`
               : 'Process'}
         </button>
+
+        {/* Processing animation */}
+        {loading && targetFile && (
+          <ProcessingAnimation
+            originalFiles={originalFiles}
+            targetFile={targetFile}
+          />
+        )}
 
         {/* Error */}
         {error && (

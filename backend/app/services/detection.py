@@ -67,12 +67,11 @@ class DetectionService:
         annotated = img.copy()
         cv2.rectangle(annotated, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
-        # Extract face with 30% padding for better recognition
-        pad = int(max(w, h) * 0.3)
-        fx1 = max(0, x - pad)
-        fy1 = max(0, y - pad)
-        fx2 = min(iw, x + w + pad)
-        fy2 = min(ih, y + h + pad)
+        # Extract face — tight crop, no padding
+        fx1 = max(0, x)
+        fy1 = max(0, y)
+        fx2 = min(iw, x + w)
+        fy2 = min(ih, y + h)
         face_crop = img[fy1:fy2, fx1:fx2]
 
         # Save both
