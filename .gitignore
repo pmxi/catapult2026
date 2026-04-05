@@ -27,5 +27,7 @@ backend/uploads/*
 
 
 # model
-backend/model/*
+backend/model/vqgan-step=030000.ckpt
+backend/model/training/*
+
 stitch_mockup
