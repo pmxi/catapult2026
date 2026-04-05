@@ -9,3 +9,5 @@ opencv-python-headless==4.10.0.84
 pillow==11.0.0
 numpy==1.26.4
 mediapipe==0.10.18
+torch==2.5.1
+torchvision==0.20.1
