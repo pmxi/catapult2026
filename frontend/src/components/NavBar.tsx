@@ -10,7 +10,7 @@ function NavBar() {
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-white/80 backdrop-blur-xl shadow-sm">
+    <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-3 bg-white/80 backdrop-blur-xl">
       <Link to="/" className="text-2xl font-bold font-headline text-teal-800">
         VIE
       </Link>

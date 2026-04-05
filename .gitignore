@@ -25,5 +25,7 @@ Thumbs.db
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+
 # model
 backend/model/*
+stitch_mockup
