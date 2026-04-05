@@ -129,7 +129,7 @@ class VQVAE(nn.Module):
 class FaceTweaker:
     """Loads the VQVAE checkpoint and applies adversarial face perturbation."""
 
-    def __init__(self, shift_radius: float = 6.0):
+    def __init__(self, shift_radius: float = 0.9):
         self.shift_radius = shift_radius
         self.device = torch.device("cpu")
         self._model: VQVAE | None = None
@@ -277,7 +277,7 @@ class FaceTweaker:
         top_y = points[:, 1].min()
         bottom_y = points[:, 1].max()
         face_height = bottom_y - top_y
-        hair_extension = int(face_height * 0.5)
+        hair_extension = int(face_height * 0.25)
 
         # Extend points that are in the top third upward
         top_threshold = top_y + face_height * 0.3
@@ -297,16 +297,27 @@ class FaceTweaker:
 
         return mask
 
+    def _generate_deformation_field(self, batch_size: int, h: int, w: int, device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+        """Generate smooth, low-frequency spatial distortion field (matches training)."""
+        noise_res = 4
+        noise_y = torch.randn(batch_size, 1, noise_res, noise_res, device=device)
+        noise_x = torch.randn(batch_size, 1, noise_res, noise_res, device=device)
+
+        shift_y = F.interpolate(noise_y, size=(h, w), mode='bicubic', align_corners=False).squeeze(1)
+        shift_x = F.interpolate(noise_x, size=(h, w), mode='bicubic', align_corners=False).squeeze(1)
+
+        return shift_y * self.shift_radius, shift_x * self.shift_radius
+
     def _shift_indices(self, indices: torch.Tensor, model: VQVAE) -> torch.Tensor:
-        """Shift quantized indices on the codebook grid using bilinear sampling."""
+        """Shift quantized indices using smooth deformation field (matches training)."""
         grid_size = model.quantizer.grid_size
         embedding_dim = model.quantizer.embedding_dim
+        b, h_lat, w_lat = indices.shape
 
         y_coords = (indices // grid_size).float()
         x_coords = (indices % grid_size).float()
 
-        shift_y = (torch.rand(1, device=self.device) * 2.0 - 1.0) * self.shift_radius
-        shift_x = (torch.rand(1, device=self.device) * 2.0 - 1.0) * self.shift_radius
+        shift_y, shift_x = self._generate_deformation_field(b, h_lat, w_lat, indices.device)
 
         target_y = (y_coords + shift_y) % grid_size
         target_x = (x_coords + shift_x) % grid_size
@@ -320,7 +331,7 @@ class FaceTweaker:
         sampling_grid = torch.stack([norm_x, norm_y], dim=-1)
 
         z_shifted = F.grid_sample(
-            codebook_weights.expand(indices.size(0), -1, -1, -1),
+            codebook_weights.expand(b, -1, -1, -1),
             sampling_grid,
             mode="bilinear",
             padding_mode="reflection",
