@@ -156,7 +156,7 @@ export default function WireframeFace() {
         className="w-full h-full min-h-[320px] relative z-10"
       />
       {mounted && createPortal(
-        <div className="fixed inset-0 pointer-events-none z-[100]">
+        <div className="fixed inset-0 pointer-events-none z-0">
           <Canvas
             camera={{ position: [0, 0, 3.5], fov: 50 }}
             style={{ background: 'transparent', pointerEvents: 'none' }}

@@ -57,7 +57,7 @@ function DemoSlideshow() {
   }, [next])
 
   return (
-    <section className="py-24 lg:py-32 px-8 bg-primary-dark">
+    <section className="relative z-10 py-24 lg:py-32 px-8 bg-primary-dark">
       <div className="max-w-4xl mx-auto space-y-12">
         <h2 className="text-4xl lg:text-5xl font-headline font-bold text-white">
           Look how easy it is.
@@ -156,7 +156,7 @@ function Landing() {
       <DemoSlideshow />
 
       {/* Logo Cloud */}
-      <section className="pt-24 lg:pt-32 pb-4 lg:pb-6 bg-neutral-50 overflow-hidden">
+      <section className="relative z-10 pt-24 lg:pt-32 pb-4 lg:pb-6 bg-neutral-50 overflow-hidden">
         <div className="max-w-5xl mx-auto px-8 mb-16">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold">
             Everyone is doing it
@@ -200,7 +200,7 @@ function Landing() {
       </section>
 
       {/* For every reason */}
-      <section className="py-16 lg:py-20 px-8 bg-neutral-50">
+      <section className="relative z-10 py-16 lg:py-20 px-8 bg-neutral-50">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold text-neutral-900">
             ...for any reason.
@@ -244,7 +244,7 @@ function Landing() {
       </section>
 
       {/* What VIE does */}
-      <section className="py-24 lg:py-32 px-8 bg-primary text-white">
+      <section className="relative z-10 py-24 lg:py-32 px-8 bg-primary text-white">
         <div className="max-w-3xl mx-auto space-y-8">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold">
             So, what can we do?
@@ -282,7 +282,7 @@ function Landing() {
       </section>
 
       {/* Team */}
-      <section id="team" className="py-24 px-8 bg-neutral-50">
+      <section id="team" className="relative z-10 py-24 px-8 bg-neutral-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl lg:text-5xl font-headline font-bold">
@@ -310,7 +310,7 @@ function Landing() {
       </section>
 
       {/* Built At */}
-      <section className="py-16 bg-white border-t border-neutral-200">
+      <section className="relative z-10 py-16 bg-white border-t border-neutral-200">
         <div className="max-w-7xl mx-auto px-8 flex flex-col items-center gap-8">
           <p className="text-neutral-500 font-label font-medium uppercase tracking-widest text-xs">
             Built at
