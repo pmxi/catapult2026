@@ -232,27 +232,29 @@ function Tool() {
           {originalFiles.length > 0 && (
             <div className="mt-4 grid grid-cols-4 gap-3">
               {originalFiles.map((f, i) => (
-                <div key={i} className="relative group">
-                  <img
-                    src={getPreviewUrl(f)}
-                    alt={f.name}
-                    className={`w-full h-24 object-cover rounded-lg border ${loading ? 'border-green-500/50' : 'border-outline-variant'}`}
-                  />
-                  {loading && (
-                    <div className="scan-overlay">
-                      <div className="scan-grid" />
-                      <div className="scan-line-h" />
-                      <div className="scan-line-v" />
-                    </div>
-                  )}
-                  {!loading && (
-                    <button
-                      onClick={() => removeOriginal(i)}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      X
-                    </button>
-                  )}
+                <div key={i} className="group">
+                  <div className="relative">
+                    <img
+                      src={getPreviewUrl(f)}
+                      alt={f.name}
+                      className={`w-full h-24 object-cover rounded-lg border ${loading ? 'border-white/40' : 'border-outline-variant'}`}
+                    />
+                    {loading && (
+                      <div className="scan-overlay">
+                        <div className="scan-grid" />
+                        <div className="scan-line-h" />
+                        <div className="scan-line-v" />
+                      </div>
+                    )}
+                    {!loading && (
+                      <button
+                        onClick={() => removeOriginal(i)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        X
+                      </button>
+                    )}
+                  </div>
                   <p className="text-xs text-on-surface-variant mt-1 truncate">
                     {f.name}
                   </p>
@@ -355,6 +357,7 @@ function Tool() {
         <ProcessingAnimation
           originalFiles={originalFiles}
           targetFile={originalFiles[0]}
+          referenceFiles={referenceFiles}
         />
       )}
 
