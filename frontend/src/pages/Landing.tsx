@@ -57,7 +57,7 @@ function DemoSlideshow() {
   }, [next])
 
   return (
-    <section className="py-24 lg:py-32 px-8 bg-[#1a1c1c]">
+    <section className="py-24 lg:py-32 px-8 bg-primary-dark">
       <div className="max-w-4xl mx-auto space-y-12">
         <h2 className="text-4xl lg:text-5xl font-headline font-bold text-white">
           Look how easy it is.
@@ -70,7 +70,7 @@ function DemoSlideshow() {
               className="w-full object-contain bg-white"
             />
           </div>
-          <p className="text-center text-white/80 text-lg mt-6">
+          <p className="text-center text-neutral-200 text-lg mt-6">
             {DEMO_SLIDES[current].caption}
           </p>
           {/* Controls */}
@@ -87,7 +87,7 @@ function DemoSlideshow() {
                   key={i}
                   onClick={() => setCurrent(i)}
                   className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === current ? 'bg-white scale-125' : 'bg-white/30'
+                    i === current ? 'bg-accent scale-125' : 'bg-white/30'
                   }`}
                 />
               ))}
@@ -107,49 +107,44 @@ function DemoSlideshow() {
 
 function Landing() {
   return (
-    <main className=" overflow-x-hidden bg-background text-on-surface font-body">
+    <main className="overflow-x-hidden bg-neutral-50 text-neutral-900 font-body">
       {/* Hero */}
-      <section className="flex flex-col bg-gradient-to-br px-8  from-surface-container-lowest via-surface-container-low to-primary-fixed/20 overflow-hidden">
+      <section className="flex flex-col bg-primary px-8 overflow-hidden">
         <div className="min-h-screen flex items-center py-24 lg:py-40">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Text column */}
             <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
-              <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight">
+              <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight text-white">
                 Make your photos{' '}
-                <span className="text-primary">unrecognizable to AI.</span>
-            </h1>
-            <p className="text-xl text-on-surface-variant max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              VIE perturbs your photos so facial recognition models can't identify
-              you — while the images still look normal to the human eye. Upload a
-              photo, get a protected version back in seconds.
-            </p>
-            <div className="pt-4">
-              <Link
-                to="/tool"
-                className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full text-lg font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20"
-              >
-                Try It Now &rarr;
-              </Link>
+                <span className="text-accent">unrecognizable to AI.</span>
+              </h1>
+              <p className="text-xl text-neutral-200 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                VIE perturbs your photos so facial recognition models can't identify
+                you — while the images still look normal to the human eye. Upload a
+                photo, get a protected version back in seconds.
+              </p>
+              <div className="pt-4">
+                <Link
+                  to="/tool"
+                  className="inline-block bg-accent text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-accent-hover transition-all hover:scale-[1.02] shadow-lg shadow-black/20"
+                >
+                  Try Now
+                </Link>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 h-[480px] lg:h-[640px]">
+              <Suspense fallback={null}>
+                <WireframeFace />
+              </Suspense>
             </div>
           </div>
-
-          {/* Wireframe face column */}
-          <div className="order-1 lg:order-2 h-[480px] lg:h-[640px]">
-            <Suspense fallback={null}>
-              <WireframeFace />
-            </Suspense>
-          </div>
         </div>
-        </div>
-      
 
-      {/* The Problem */}
-      {/* <section id="how-it-works" className="py-24 lg:py-32 px-8 bg-surface-container-lowest"> */}
         <div className="max-w-3xl mx-auto space-y-6 pb-24 lg:pb-40">
-          <h2 className="text-4xl lg:text-5xl font-headline font-bold">
+          <h2 className="text-4xl lg:text-5xl font-headline font-bold text-white">
             Facial recognition is everywhere.
           </h2>
-          <p className="text-lg text-on-surface-variant leading-relaxed">
+          <p className="text-lg text-neutral-200 leading-relaxed">
             Anyone can upload a photo of you to a reverse face search engine
             and find where you appear online. It takes seconds, costs nothing,
             and you&rsquo;ll never know it happened.
@@ -157,14 +152,14 @@ function Landing() {
         </div>
       </section>
 
-      {/* Look How Easy It Is */}
+      {/* Slideshow */}
       <DemoSlideshow />
 
       {/* Logo Cloud */}
-      <section className="py-24 lg:py-32 bg-surface-container-lowest overflow-hidden">
+      <section className="pt-24 lg:pt-32 pb-4 lg:pb-6 bg-neutral-50 overflow-hidden">
         <div className="max-w-5xl mx-auto px-8 mb-16">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold">
-            Everyone is doing it.
+            Everyone is doing it
           </h2>
         </div>
         <div className="relative">
@@ -205,9 +200,9 @@ function Landing() {
       </section>
 
       {/* For every reason */}
-      <section className="py-12 lg:py-16 px-8 bg-white">
+      <section className="py-16 lg:py-20 px-8 bg-neutral-50">
         <div className="max-w-4xl mx-auto space-y-8">
-          <h2 className="text-4xl lg:text-5xl font-headline font-bold">
+          <h2 className="text-4xl lg:text-5xl font-headline font-bold text-neutral-900">
             ...for any reason.
           </h2>
           <div className="space-y-6">
@@ -239,9 +234,9 @@ function Landing() {
                 />
                 <Icon
                   name="arrow_forward"
-                  className="text-on-surface/40 text-5xl hidden sm:block shrink-0"
+                  className="text-primary-mid text-5xl hidden sm:block shrink-0"
                 />
-                <p className="text-xl font-medium text-on-surface-variant">{item.desc}</p>
+                <p className="text-xl font-medium text-neutral-900">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -249,73 +244,55 @@ function Landing() {
       </section>
 
       {/* What VIE does */}
-      <section className="py-24 lg:py-32 px-8 bg-surface-container-lowest">
+      <section className="py-24 lg:py-32 px-8 bg-primary text-white">
         <div className="max-w-3xl mx-auto space-y-8">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold">
             So, what can we do?
           </h2>
-          <p className="text-lg text-on-surface-variant leading-relaxed">
-            We built a{' '}
-            <strong className="text-on-surface">
-              VQ-VAE/VQ-GAN-style autoencoder
-            </strong>{' '}
-            that represents photos in a compact latent space. Then we perturb
-            that representation &mdash; shifting it away from what facial
-            recognition models expect &mdash; and reconstruct a plausible image
-            that looks the same to you but disrupts the mechanism these models
-            rely on.
+          <p className="text-lg text-neutral-200 leading-relaxed">
+            We built a VQ-VAE/VQ-GAN-style autoencoder that represents photos
+            in a compact latent space. Then we perturb that representation
+            &mdash; shifting it away from what facial recognition models expect
+            &mdash; and reconstruct a plausible image that looks the same to you
+            but fools AI.
           </p>
-          <div className="grid md:grid-cols-3 gap-8 pt-8">
-            {[
-              {
-                icon: 'psychology',
-                title: 'Encode',
-                desc: 'Compress the image into a latent representation.',
-              },
-              {
-                icon: 'blur_on',
-                title: 'Perturb',
-                desc: 'Shift the latent away from recognizable face embeddings.',
-              },
-              {
-                icon: 'check_circle',
-                title: 'Reconstruct',
-                desc: 'Decode back into an image that looks normal but fools AI.',
-              },
-            ].map((s) => (
-              <div
-                key={s.title}
-                className="text-center space-y-4 p-6 rounded-[1rem] bg-on-primary-container"
-              >
-                <Icon name={s.icon} className="text-3xl text-primary" />
-                <h4 className="font-headline font-bold">{s.title}</h4>
-                <p className="text-on-surface-variant text-sm">{s.desc}</p>
-              </div>
-            ))}
-          </div>
+          <ol className="space-y-6 pt-4 text-lg text-neutral-200">
+            <li className="flex gap-4">
+              <span className="text-accent font-bold font-headline shrink-0">1.</span>
+              <span><strong className="text-white">Encode</strong> your image into a compact latent representation.</span>
+            </li>
+            <li className="flex gap-4">
+              <span className="text-accent font-bold font-headline shrink-0">2.</span>
+              <span><strong className="text-white">Perturb</strong> the latent, shifting it away from recognizable face embeddings.</span>
+            </li>
+            <li className="flex gap-4">
+              <span className="text-accent font-bold font-headline shrink-0">3.</span>
+              <span><strong className="text-white">Reconstruct</strong> an image that looks normal to humans but fools AI.</span>
+            </li>
+          </ol>
           <div className="pt-8 text-center">
             <Link
               to="/tool"
-              className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full text-lg font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20"
+              className="inline-block bg-accent text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-accent-hover transition-all hover:scale-[1.02] shadow-lg shadow-black/20"
             >
-              Try It Now &rarr;
+              Try Now
             </Link>
           </div>
         </div>
       </section>
 
       {/* Team */}
-      <section id="team" className="py-24 px-8 bg-on-primary-container">
+      <section id="team" className="py-24 px-8 bg-neutral-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-5xl font-headline font-bold text-primary">
+            <h2 className="text-4xl lg:text-5xl font-headline font-bold">
               The Minds Behind VIE
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             {TEAM.map((m) => (
               <div key={m.name} className="space-y-4 group">
-                <div className="aspect-square rounded-[1rem] overflow-hidden bg-white shadow-sm border-2 border-white group-hover:border-primary transition-all">
+                <div className="aspect-square rounded-[1rem] overflow-hidden bg-white shadow-md border-2 border-neutral-200 group-hover:border-accent transition-all">
                   <img
                     className="w-full h-full object-cover"
                     src={m.img}
@@ -324,7 +301,7 @@ function Landing() {
                 </div>
                 <div className="text-center">
                   <h6 className="font-headline font-bold">{m.name}</h6>
-                  <p className="text-xs text-on-surface-variant">Developer</p>
+                  <p className="text-xs text-neutral-500">Developer</p>
                 </div>
               </div>
             ))}
@@ -333,9 +310,9 @@ function Landing() {
       </section>
 
       {/* Built At */}
-      <section className="py-16 bg-surface-container-lowest border-t border-outline-variant/10">
+      <section className="py-16 bg-white border-t border-neutral-200">
         <div className="max-w-7xl mx-auto px-8 flex flex-col items-center gap-8">
-          <p className="text-on-surface-variant font-label font-medium uppercase tracking-widest text-xs">
+          <p className="text-neutral-500 font-label font-medium uppercase tracking-widest text-xs">
             Built at
           </p>
           <div className="flex flex-wrap justify-center items-center gap-16">

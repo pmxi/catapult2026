@@ -72,22 +72,22 @@
   animation: scan-glow 3s ease-in-out infinite;
 }
 
-/* ── Neo processing animation (light theme — teal primary #00685f) ── */
+/* ── Neo processing animation ── */
 
 .neo-container {
   background: #ffffff;
-  border: 1px solid rgba(0, 104, 95, 0.15);
+  border: 1px solid rgba(0, 104, 95, 0.12);
   box-shadow:
-    0 4px 24px rgba(0, 104, 95, 0.06),
-    inset 0 1px 0 rgba(0, 104, 95, 0.04);
+    0 4px 24px rgba(0, 104, 95, 0.05),
+    inset 0 1px 0 rgba(0, 104, 95, 0.03);
 }
 
 /* Step indicators */
 .neo-step-active {
   color: #00685f;
   background: rgba(0, 104, 95, 0.08);
-  border: 1px solid rgba(0, 104, 95, 0.3);
-  box-shadow: 0 0 10px rgba(0, 104, 95, 0.1);
+  border: 1px solid rgba(0, 104, 95, 0.25);
+  box-shadow: 0 0 10px rgba(0, 104, 95, 0.08);
 }
 
 .neo-step-done {
@@ -119,7 +119,7 @@
   25% { border-top-color: #00685f; border-right-color: transparent; border-bottom-color: transparent; border-left-color: transparent; }
   50% { border-top-color: #00685f; border-right-color: #00685f; border-bottom-color: transparent; border-left-color: transparent; }
   75% { border-top-color: #00685f; border-right-color: #00685f; border-bottom-color: #00685f; border-left-color: transparent; }
-  100% { border-color: #00685f; box-shadow: 0 0 12px rgba(0, 104, 95, 0.2), inset 0 0 12px rgba(0, 104, 95, 0.03); }
+  100% { border-color: #00685f; box-shadow: 0 0 12px rgba(0, 104, 95, 0.15), inset 0 0 12px rgba(0, 104, 95, 0.02); }
 }
 
 .neo-detect-scanline {
@@ -128,7 +128,7 @@
   right: 3px;
   height: 2px;
   background: linear-gradient(90deg, transparent, #00685f, transparent);
-  box-shadow: 0 0 8px rgba(0, 104, 95, 0.4);
+  box-shadow: 0 0 8px rgba(0, 104, 95, 0.3);
   animation: neo-scanline-sweep 2s ease-in-out infinite;
   border-radius: 1px;
 }
@@ -170,14 +170,14 @@
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid #00685f;
-  box-shadow: 0 0 16px rgba(0, 104, 95, 0.25);
+  box-shadow: 0 0 16px rgba(0, 104, 95, 0.2);
   animation: neo-crop-extract 1.8s ease-out forwards;
 }
 
 @keyframes neo-crop-extract {
   0% { inset: 30%; opacity: 0; border-color: transparent; box-shadow: none; }
   40% { opacity: 1; border-color: #00685f; }
-  100% { inset: 10%; opacity: 1; box-shadow: 0 0 20px rgba(0, 104, 95, 0.3); }
+  100% { inset: 10%; opacity: 1; box-shadow: 0 0 20px rgba(0, 104, 95, 0.25); }
 }
 
 /* Arrow */
@@ -220,7 +220,7 @@
 /* ── Step 2: Encoding ── */
 
 .neo-encode-panel {
-  background: linear-gradient(135deg, #f0faf9, #e6f5f3);
+  background: linear-gradient(135deg, #e0f2f0, #cce8e5);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -282,8 +282,8 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 104, 95, 0.06) 2px,
-    rgba(0, 104, 95, 0.06) 4px
+    rgba(0, 104, 95, 0.05) 2px,
+    rgba(0, 104, 95, 0.05) 4px
   );
   pointer-events: none;
   animation: neo-scanlines-move 0.5s linear infinite;
@@ -298,7 +298,7 @@
 .neo-silhouette {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+  background: linear-gradient(135deg, #e0f2f0, #b5ddd8);
   animation: neo-silhouette-in 2s ease-out forwards;
   pointer-events: none;
 }
@@ -331,7 +331,7 @@
 /* Encode label + progress */
 .neo-encode-label {
   color: #00685f;
-  text-shadow: 0 0 8px rgba(0, 104, 95, 0.2);
+  text-shadow: 0 0 8px rgba(0, 104, 95, 0.15);
   animation: neo-label-pulse 1s ease-in-out infinite;
 }
 
@@ -351,7 +351,7 @@
 
 .neo-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #b2dfdb, #00685f);
+  background: linear-gradient(90deg, #b5ddd8, #00685f);
   border-radius: 2px;
   animation: neo-progress 2.2s ease-in-out infinite;
 }
@@ -383,8 +383,8 @@
 }
 
 .neo-border-glow {
-  border-color: rgba(0, 104, 95, 0.3);
-  box-shadow: 0 0 12px rgba(0, 104, 95, 0.12);
+  border-color: rgba(0, 104, 95, 0.25);
+  box-shadow: 0 0 12px rgba(0, 104, 95, 0.1);
 }
 
 .neo-vs-badge {
@@ -393,20 +393,20 @@
   letter-spacing: 0.15em;
   color: #00685f;
   background: rgba(0, 104, 95, 0.06);
-  border: 1px solid rgba(0, 104, 95, 0.25);
+  border: 1px solid rgba(0, 104, 95, 0.2);
   border-radius: 6px;
   padding: 4px 12px;
   animation: neo-vs-pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes neo-vs-pulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(0, 104, 95, 0.08); }
-  50% { box-shadow: 0 0 16px rgba(0, 104, 95, 0.2); }
+  0%, 100% { box-shadow: 0 0 6px rgba(0, 104, 95, 0.06); }
+  50% { box-shadow: 0 0 16px rgba(0, 104, 95, 0.15); }
 }
 
 .neo-percent {
   color: #00685f;
-  text-shadow: 0 0 10px rgba(0, 104, 95, 0.25);
+  text-shadow: 0 0 10px rgba(0, 104, 95, 0.2);
 }
 
 /* Counter badge */
@@ -415,7 +415,7 @@
   font-size: 0.65rem;
   color: #00685f;
   background: rgba(0, 104, 95, 0.06);
-  border: 1px solid rgba(0, 104, 95, 0.15);
+  border: 1px solid rgba(0, 104, 95, 0.12);
   border-radius: 4px;
   padding: 2px 6px;
 }
@@ -425,9 +425,9 @@
   font-family: monospace;
   font-size: 0.55rem;
   letter-spacing: 0.1em;
-  color: #575e70;
-  background: rgba(87, 94, 112, 0.08);
-  border: 1px solid rgba(87, 94, 112, 0.15);
+  color: #a68b6b;
+  background: rgba(166, 139, 107, 0.1);
+  border: 1px solid rgba(166, 139, 107, 0.2);
   border-radius: 4px;
   padding: 1px 5px;
 }
@@ -442,6 +442,6 @@
   font-weight: 600;
   color: #00685f;
   background: rgba(0, 104, 95, 0.06);
-  border: 1px dashed rgba(0, 104, 95, 0.25);
+  border: 1px dashed rgba(0, 104, 95, 0.2);
   border-radius: 8px;
 }

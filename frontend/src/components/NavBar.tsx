@@ -10,8 +10,12 @@ function NavBar() {
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-3 bg-white/80 backdrop-blur-xl">
-      <Link to="/" className="text-2xl font-bold font-headline text-teal-800">
+    <nav className={`fixed top-0 w-full z-50 flex justify-between items-center px-8 py-3 backdrop-blur-xl ${
+      isLanding
+        ? 'bg-primary/80 border-b border-white/10'
+        : 'bg-white/90 border-b border-neutral-200'
+    }`}>
+      <Link to="/" className={`text-2xl font-bold font-headline ${isLanding ? 'text-white' : 'text-primary'}`}>
         VIE
       </Link>
       <div className="hidden md:flex gap-8 items-center font-body">
@@ -19,13 +23,13 @@ function NavBar() {
           <>
             <button
               onClick={() => scrollTo('how-it-works')}
-              className="text-slate-600 hover:text-teal-700 transition-colors"
+              className="text-white/80 hover:text-white transition-colors font-medium"
             >
               How It Works
             </button>
             <button
               onClick={() => scrollTo('team')}
-              className="text-slate-600 hover:text-teal-700 transition-colors"
+              className="text-white/80 hover:text-white transition-colors font-medium"
             >
               The Team
             </button>
@@ -34,13 +38,13 @@ function NavBar() {
           <>
             <Link
               to="/#how-it-works"
-              className="text-slate-600 hover:text-teal-700 transition-colors"
+              className="text-neutral-700 hover:text-primary transition-colors font-medium"
             >
               How It Works
             </Link>
             <Link
               to="/#team"
-              className="text-slate-600 hover:text-teal-700 transition-colors"
+              className="text-neutral-700 hover:text-primary transition-colors font-medium"
             >
               The Team
             </Link>
@@ -49,9 +53,9 @@ function NavBar() {
       </div>
       <Link
         to="/tool"
-        className="bg-primary text-on-primary px-8 py-2.5 rounded-full font-body font-medium hover:opacity-80 transition-all hover:scale-105 active:scale-95"
+        className="bg-accent text-white px-8 py-2.5 rounded-full font-body font-semibold hover:bg-accent-hover transition-all hover:scale-105 active:scale-95"
       >
-        Try It &rarr;
+        Try It
       </Link>
     </nav>
   )

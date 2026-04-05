@@ -1,4 +1,5 @@
-import { useRef, useMemo, useState, useCallback, useEffect } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -6,11 +7,11 @@ import * as THREE from 'three'
 const BASE = import.meta.env.BASE_URL
 
 /** How far vertices fly when dissolving */
-const SCATTER_RADIUS = 25
+const SCATTER_RADIUS = 60
 /** Scale applied to the loaded model */
 const MODEL_SCALE = 2
 /** Lerp speed for dissolve / reassemble */
-const LERP_SPEED = 2.5
+const LERP_SPEED = 2.0
 /** Slow idle rotation speed (radians/s) */
 const IDLE_ROTATION = 0.075
 
@@ -18,7 +19,7 @@ const IDLE_ROTATION = 0.075
 // Inner mesh — lives inside the R3F Canvas
 // ---------------------------------------------------------------------------
 
-function FaceMesh({ dissolve }: { dissolve: boolean }) {
+function FaceMesh({ trackRef }: { trackRef: React.RefObject<HTMLDivElement> }) {
   const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.MeshBasicMaterial>(null)
   const gltf = useGLTF(`${BASE}models/low_poly_face.glb`)
@@ -70,16 +71,38 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
   // Track current animation progress (0 = assembled, 1 = scattered)
   const progressRef = useRef(0)
 
-  useFrame((_state, delta) => {
+  useFrame((state, delta) => {
     if (!meshRef.current) return
     const mesh = meshRef.current
     const pos = mesh.geometry.attributes.position as THREE.BufferAttribute
 
-    // Animate progress toward target
-    const target = dissolve ? 1 : 0
+    // Sync position and scale with DOM element
+    if (trackRef.current) {
+      const rect = trackRef.current.getBoundingClientRect()
+      
+      const scale = rect.height / state.size.height
+      mesh.scale.setScalar(scale)
+
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+
+      const ndcX = (cx / state.size.width) * 2 - 1
+      const ndcY = -(cy / state.size.height) * 2 + 1
+
+      const vec = new THREE.Vector3(ndcX, ndcY, 0.5)
+      vec.unproject(state.camera)
+      vec.sub(state.camera.position).normalize()
+      const dist = -state.camera.position.z / vec.z
+      mesh.position.copy(state.camera.position).add(vec.multiplyScalar(dist))
+    }
+
+    // Scroll-based progress target (0 to 1 over 800px of scroll)
+    const scrollTarget = Math.min(1, Math.max(0, window.scrollY / 800))
+    
+    // Animate progress toward scroll target
     progressRef.current = THREE.MathUtils.lerp(
       progressRef.current,
-      target,
+      scrollTarget,
       1 - Math.exp(-LERP_SPEED * delta)
     )
     const t = progressRef.current
@@ -91,9 +114,9 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
     }
     pos.needsUpdate = true
 
-    // Fade wireframe opacity as it scatters
+    // Fade wireframe opacity as it scatters (don't let it vanish entirely)
     if (matRef.current) {
-      matRef.current.opacity = 1 - t * 0.65
+      matRef.current.opacity = 1 - t * 0.7
     }
 
     // Gentle idle rotation
@@ -101,7 +124,7 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
   })
 
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={meshRef} frustumCulled={false}>
       <meshBasicMaterial
         ref={matRef}
         wireframe
@@ -118,29 +141,32 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
 // ---------------------------------------------------------------------------
 
 export default function WireframeFace() {
-  const [hovered, setHovered] = useState(false)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
 
-  const onEnter = useCallback(() => setHovered(true), [])
-  const onLeave = useCallback(() => setHovered(false), [])
+  // Wait for client mount to avoid hydration mismatch with Portals
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
-    <div
-      className="w-full h-full min-h-[320px] relative"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
-        style={{ width: '400%', height: '400%' }}
-      >
-        <Canvas
-          camera={{ position: [0, 0, 3.5 * 4], fov: 50 }}
-          style={{ background: 'transparent', overflow: 'visible' }}
-          gl={{ alpha: true, antialias: true }}
-        >
-          <FaceMesh dissolve={hovered} />
-        </Canvas>
-      </div>
-    </div>
+    <>
+      <div
+        ref={trackRef}
+        className="w-full h-full min-h-[320px] relative z-10"
+      />
+      {mounted && createPortal(
+        <div className="fixed inset-0 pointer-events-none z-[100]">
+          <Canvas
+            camera={{ position: [0, 0, 3.5], fov: 50 }}
+            style={{ background: 'transparent', pointerEvents: 'none' }}
+            gl={{ alpha: true, antialias: true }}
+          >
+            <FaceMesh trackRef={trackRef} />
+          </Canvas>
+        </div>,
+        document.body
+      )}
+    </>
   )
 }

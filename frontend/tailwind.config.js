@@ -7,34 +7,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#f9f9f9",
-        "surface-container-high": "#e8e8e8",
-        "surface-container-lowest": "#ffffff",
-        "surface-container-low": "#f3f3f3",
-        "surface-container": "#eeeeee",
-        "surface-dim": "#dadada",
-        "surface-variant": "#e2e2e2",
-        "on-surface": "#1a1c1c",
-        "on-surface-variant": "#3d4947",
-        "on-background": "#1a1c1c",
-        "on-primary": "#ffffff",
-        "on-primary-container": "#f4fffc",
-        "on-primary-fixed": "#00201d",
-        "on-primary-fixed-variant": "#005049",
-        outline: "#6d7a77",
-        "outline-variant": "#bcc9c6",
+        // ── Primary tints ──
+        "primary-dark": "#004d46",
         primary: "#00685f",
-        "primary-container": "#008378",
-        "primary-fixed": "#89f5e7",
-        "primary-fixed-dim": "#6bd8cb",
-        "inverse-primary": "#6bd8cb",
-        secondary: "#575e70",
-        "secondary-container": "#d9dff5",
-        tertiary: "#924628",
-        "tertiary-container": "#b05e3d",
-        "tertiary-fixed": "#ffdbce",
-        error: "#ba1a1a",
-        "error-container": "#ffdad6",
+        "primary-mid": "#4da89f",
+        "primary-light": "#dff0ed",
+
+        // ── Accent ──
+        accent: "#e8634a",
+        "accent-hover": "#d4553d",
+
+        // ── Neutrals ──
+        "neutral-900": "#1e2f2d",
+        "neutral-700": "#4a5c5a",
+        "neutral-500": "#8a9c9a",
+        "neutral-200": "#d6dfdd",
+        "neutral-50": "#f3f6f5",
+
+        // ── Semantic ──
+        success: "#2e8b57",
+        warning: "#d4953a",
+        error: "#c94a4a",
       },
       fontFamily: {
         headline: ["Noto Serif", "serif"],

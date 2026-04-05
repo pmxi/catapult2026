@@ -33,7 +33,7 @@ function ComparisonSlider({ originalUrl, protectedUrl }: ComparisonSliderProps) 
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[4/3] rounded-[1rem] overflow-hidden shadow-2xl cursor-ew-resize select-none bg-surface-container"
+      className="relative w-full aspect-[4/3] rounded-[1rem] overflow-hidden shadow-2xl cursor-ew-resize select-none bg-neutral-200"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

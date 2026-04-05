@@ -28,7 +28,6 @@ interface ProtectedResult {
   tweaked_annotated_url?: string | null
   tweaked_face_url?: string | null
   protection: ScorePair | null
-  baseline: ScorePair | null
 }
 
 interface ReferenceComparison {
@@ -41,8 +40,6 @@ interface ReferenceComparison {
     tweaked_filename: string
     deepface: ScorePair['deepface']
     insightface: ScorePair['insightface']
-    before_deepface: ScorePair['deepface']
-    before_insightface: ScorePair['insightface']
   }[]
 }
 
@@ -144,15 +141,15 @@ function Tool() {
   }
 
   const similarityColor = (score: number) => {
-    if (score < 0.3) return 'text-green-600'
-    if (score < 0.6) return 'text-yellow-600'
-    return 'text-red-600'
+    if (score < 0.3) return 'text-success'
+    if (score < 0.6) return 'text-warning'
+    return 'text-error'
   }
 
   const similarityBarColor = (score: number) => {
-    if (score < 0.3) return 'bg-green-500'
-    if (score < 0.6) return 'bg-yellow-500'
-    return 'bg-red-500'
+    if (score < 0.3) return 'bg-success'
+    if (score < 0.6) return 'bg-warning'
+    return 'bg-error'
   }
 
   const getPreviewUrl = (file: File) => URL.createObjectURL(file)
@@ -160,57 +157,39 @@ function Tool() {
   const ScoreBar = ({
     label,
     score,
-    beforeScore,
     subtitle,
   }: {
     label: string
     score: number
-    beforeScore?: number
     subtitle?: string
   }) => (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="font-bold">{label}</span>
-        <div className="flex items-center gap-2">
-          {beforeScore !== undefined && (
-            <>
-              <span className="text-sm text-on-surface-variant line-through">
-                {(beforeScore * 100).toFixed(1)}%
-              </span>
-              <span className="text-on-surface-variant">→</span>
-            </>
-          )}
-          <span className={`font-bold ${similarityColor(score)}`}>
-            {(score * 100).toFixed(1)}%
-          </span>
-        </div>
+        <span className={`font-bold ${similarityColor(score)}`}>
+          {(score * 100).toFixed(1)}%
+        </span>
       </div>
-      <div className="relative h-3 bg-surface-container rounded-full overflow-hidden">
-        {beforeScore !== undefined && (
-          <div
-            className="absolute inset-y-0 left-0 bg-gray-300 rounded-full transition-all duration-500"
-            style={{ width: `${Math.max(2, beforeScore * 100)}%` }}
-          />
-        )}
+      <div className="relative h-3 bg-neutral-200 rounded-full overflow-hidden">
         <div
           className={`absolute inset-y-0 left-0 ${similarityBarColor(score)} rounded-full transition-all duration-500`}
           style={{ width: `${Math.max(2, score * 100)}%` }}
         />
       </div>
       {subtitle && (
-        <p className="text-xs text-on-surface-variant">{subtitle}</p>
+        <p className="text-xs text-neutral-500">{subtitle}</p>
       )}
     </div>
   )
 
   return (
-    <main className="pt-32 pb-20 px-6 max-w-5xl mx-auto bg-background text-on-surface font-body">
+    <main className="pt-32 pb-20 px-6 max-w-5xl mx-auto bg-neutral-50 text-neutral-900 font-body">
       {/* Header */}
       <header className="text-center space-y-4 mb-16">
         <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tight">
           The Upload Tool.
         </h1>
-        <p className="text-on-surface-variant text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+        <p className="text-neutral-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
           Invisible protection for your visual identity. Transform your photos
           into AI-resistant assets in seconds.
         </p>
@@ -221,20 +200,20 @@ function Tool() {
         {/* Original Images */}
         <div>
           <div className="flex items-center space-x-4 mb-4">
-            <span className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+            <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
               1
             </span>
             <h2 className="font-headline text-2xl font-bold">
               Original Images
             </h2>
           </div>
-          <p className="text-sm text-on-surface-variant mb-3">
+          <p className="text-sm text-neutral-500 mb-3">
             Upload the photos you want to protect. Each will be processed with
             adversarial encoding.
           </p>
           <div
             onClick={() => originalInputRef.current?.click()}
-            className="border-2 border-dashed border-outline-variant rounded-[1rem] p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
+            className="border-2 border-dashed border-neutral-200 rounded-[1rem] p-8 text-center cursor-pointer hover:border-primary hover:bg-primary-light/50 transition-all"
           >
             <input
               ref={originalInputRef}
@@ -250,7 +229,7 @@ function Tool() {
             >
               cloud_upload
             </span>
-            <p className="text-on-surface-variant">
+            <p className="text-neutral-500">
               Click to upload or drag and drop
             </p>
           </div>
@@ -262,7 +241,7 @@ function Tool() {
                     <img
                       src={getPreviewUrl(f)}
                       alt={f.name}
-                      className={`w-full h-24 object-cover rounded-lg border ${loading ? 'border-white/40' : 'border-outline-variant'}`}
+                      className={`w-full h-24 object-cover rounded-lg border ${loading ? 'border-white/40' : 'border-neutral-200'}`}
                     />
                     {loading && (
                       <div className="scan-overlay">
@@ -274,13 +253,13 @@ function Tool() {
                     {!loading && (
                       <button
                         onClick={() => removeOriginal(i)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         X
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-on-surface-variant mt-1 truncate">
+                  <p className="text-xs text-neutral-500 mt-1 truncate">
                     {f.name}
                   </p>
                 </div>
@@ -292,23 +271,23 @@ function Tool() {
         {/* Reference Images */}
         <div>
           <div className="flex items-center space-x-4 mb-4">
-            <span className="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm">
+            <span className="w-8 h-8 rounded-full bg-neutral-500 text-white flex items-center justify-center font-bold text-sm">
               2
             </span>
             <h2 className="font-headline text-2xl font-bold">
               Reference Images for Testing
             </h2>
-            <span className="text-xs text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">
+            <span className="text-xs text-neutral-500 bg-neutral-200 px-2 py-1 rounded-full">
               Optional
             </span>
           </div>
-          <p className="text-sm text-on-surface-variant mb-3">
+          <p className="text-sm text-neutral-500 mb-3">
             Upload different photos of the same person to test if facial
             recognition can still match them against the protected images.
           </p>
           <div
             onClick={() => referenceInputRef.current?.click()}
-            className="border-2 border-dashed border-outline-variant rounded-[1rem] p-6 text-center cursor-pointer hover:border-secondary hover:bg-secondary/5 transition-all"
+            className="border-2 border-dashed border-neutral-200 rounded-[1rem] p-6 text-center cursor-pointer hover:border-neutral-500 hover:bg-neutral-50 transition-all"
           >
             <input
               ref={referenceInputRef}
@@ -319,12 +298,12 @@ function Tool() {
               className="hidden"
             />
             <span
-              className="material-symbols-outlined text-secondary text-3xl mb-1 block"
+              className="material-symbols-outlined text-neutral-500 text-3xl mb-1 block"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
             >
               compare
             </span>
-            <p className="text-on-surface-variant text-sm">
+            <p className="text-neutral-500 text-sm">
               Click to upload reference images
             </p>
           </div>
@@ -335,15 +314,15 @@ function Tool() {
                   <img
                     src={getPreviewUrl(f)}
                     alt={f.name}
-                    className="w-full h-24 object-cover rounded-lg border border-outline-variant"
+                    className="w-full h-24 object-cover rounded-lg border border-neutral-200"
                   />
                   <button
                     onClick={() => removeReference(i)}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     X
                   </button>
-                  <p className="text-xs text-on-surface-variant mt-1 truncate">
+                  <p className="text-xs text-neutral-500 mt-1 truncate">
                     {f.name}
                   </p>
                 </div>
@@ -357,7 +336,7 @@ function Tool() {
       <button
         onClick={handleProcess}
         disabled={loading || originalFiles.length === 0}
-        className="w-full bg-primary text-on-primary py-5 rounded-full text-xl font-bold hover:scale-[1.01] active:scale-95 transition-all shadow-lg shadow-primary/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-3"
+        className="w-full bg-accent text-white py-5 rounded-full text-xl font-bold hover:bg-accent-hover hover:scale-[1.01] active:scale-95 transition-all shadow-lg shadow-accent/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-3"
       >
         <span>
           {loading
@@ -367,7 +346,7 @@ function Tool() {
               : 'Poison My Photo \u2192'}
         </span>
       </button>
-      <p className="text-center text-on-surface-variant text-sm mt-3 flex items-center justify-center gap-1">
+      <p className="text-center text-neutral-500 text-sm mt-3 flex items-center justify-center gap-1">
         <span
           className="material-symbols-outlined text-sm"
           style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
@@ -388,7 +367,7 @@ function Tool() {
 
       {/* Error */}
       {error && (
-        <div className="mt-6 p-4 bg-error-container border border-error/30 rounded-[1rem] text-error">
+        <div className="mt-6 p-4 bg-error/10 border border-error/30 rounded-[1rem] text-error">
           {error}
         </div>
       )}
@@ -397,12 +376,12 @@ function Tool() {
       {results && (
         <div className="mt-16 space-y-16">
           {/* Protection Analysis */}
-          <section className="bg-surface-container-low rounded-[1rem] overflow-hidden p-8 md:p-12 space-y-10">
+          <section className="bg-primary-light rounded-[1rem] overflow-hidden p-8 md:p-12 space-y-10">
             <div>
               <h2 className="font-headline text-4xl font-bold mb-2">
                 Protection Analysis
               </h2>
-              <p className="text-on-surface-variant text-lg">
+              <p className="text-neutral-700 text-lg">
                 Comparing original vs. protected — lower similarity means
                 stronger protection.
               </p>
@@ -411,7 +390,7 @@ function Tool() {
             {results.protected.map((pr, i) => (
               <div
                 key={i}
-                className="space-y-6 pb-8 border-b border-outline-variant/20 last:border-0 last:pb-0"
+                className="space-y-6 pb-8 border-b border-neutral-200 last:border-0 last:pb-0"
               >
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <h3 className="font-headline text-xl font-bold">
@@ -422,7 +401,7 @@ function Tool() {
                       onClick={() =>
                         handleDownload(pr.tweaked_image_url, pr.download_name)
                       }
-                      className="bg-primary text-on-primary px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity text-sm"
+                      className="bg-accent text-white px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 hover:bg-accent-hover transition-all text-sm"
                     >
                       <span
                         className="material-symbols-outlined text-lg"
@@ -438,16 +417,16 @@ function Tool() {
                 </div>
 
                 {pr.skipped ? (
-                  <div className="flex items-center gap-3 p-6 bg-surface-container rounded-[1rem] border border-outline-variant/20">
+                  <div className="flex items-center gap-3 p-6 bg-neutral-50 rounded-[1rem] border border-neutral-200">
                     <span
-                      className="material-symbols-outlined text-2xl text-on-surface-variant"
+                      className="material-symbols-outlined text-2xl text-neutral-500"
                       style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
                     >
                       face_retouching_off
                     </span>
                     <div>
-                      <p className="font-semibold text-on-surface">No face detected</p>
-                      <p className="text-sm text-on-surface-variant">
+                      <p className="font-semibold">No face detected</p>
+                      <p className="text-sm text-neutral-500">
                         This image was skipped because no face could be found.
                       </p>
                     </div>
@@ -464,38 +443,36 @@ function Tool() {
                       <ScoreBar
                         label="DeepFace"
                         score={pr.protection!.deepface.similarity}
-                        beforeScore={pr.baseline?.deepface.similarity}
                         subtitle={`${pr.protection!.deepface.verified ? 'Match detected' : 'No match'} (${pr.protection!.deepface.model})`}
                       />
                       <ScoreBar
                         label="InsightFace"
                         score={pr.protection!.insightface.similarity}
-                        beforeScore={pr.baseline?.insightface.similarity}
                       />
 
                       {/* Face crops */}
                       <div className="flex gap-3 mt-2">
                         {pr.original_face_url && (
                           <div>
-                            <p className="text-xs text-on-surface-variant mb-1">
+                            <p className="text-xs text-neutral-500 mb-1">
                               Original
                             </p>
                             <img
                               src={`${import.meta.env.VITE_API_URL || ''}${pr.original_face_url}`}
                               alt="Original face"
-                              className="h-20 rounded-lg border border-outline-variant"
+                              className="h-20 rounded-lg border border-neutral-200"
                             />
                           </div>
                         )}
                         {pr.tweaked_face_url && (
                           <div>
-                            <p className="text-xs text-on-surface-variant mb-1">
+                            <p className="text-xs text-neutral-500 mb-1">
                               Protected
                             </p>
                             <img
                               src={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_face_url}`}
                               alt="Tweaked face"
-                              className="h-20 rounded-lg border border-outline-variant"
+                              className="h-20 rounded-lg border border-neutral-200"
                             />
                           </div>
                         )}
@@ -509,12 +486,12 @@ function Tool() {
 
           {/* Reference Comparisons */}
           {results.reference_comparisons.length > 0 && (
-            <section className="bg-surface-container-low rounded-[1rem] overflow-hidden p-8 md:p-12 space-y-8">
+            <section className="bg-primary-light rounded-[1rem] overflow-hidden p-8 md:p-12 space-y-8">
               <div>
                 <h2 className="font-headline text-4xl font-bold mb-2">
                   Similarity Scores
                 </h2>
-                <p className="text-on-surface-variant text-lg">
+                <p className="text-neutral-700 text-lg">
                   Testing reference images against protected images — lower
                   means the AI can&rsquo;t match them.
                 </p>
@@ -523,35 +500,35 @@ function Tool() {
               {results.reference_comparisons.map((ref, i) => (
                 <div
                   key={i}
-                  className="bg-surface-container-lowest p-6 rounded-[1rem] shadow-sm space-y-6"
+                  className="bg-white p-6 rounded-[1rem] shadow-sm space-y-6"
                 >
                   <div className="flex items-center gap-4">
                     {ref.reference_face_url && (
                       <img
                         src={`${import.meta.env.VITE_API_URL || ''}${ref.reference_face_url}`}
                         alt="Reference face"
-                        className="h-16 w-16 object-cover rounded-lg border border-outline-variant"
+                        className="h-16 w-16 object-cover rounded-lg border border-neutral-200"
                       />
                     )}
                     <div>
                       <p className="font-bold text-lg">
                         {ref.reference_filename}
                       </p>
-                      <p className="text-xs text-on-surface-variant">
+                      <p className="text-xs text-neutral-500">
                         Reference image
                       </p>
                     </div>
                   </div>
 
                   {ref.skipped ? (
-                    <div className="flex items-center gap-3 p-4 bg-surface-container rounded-xl border border-outline-variant/20">
+                    <div className="flex items-center gap-3 p-4 bg-neutral-50 rounded-xl border border-neutral-200">
                       <span
-                        className="material-symbols-outlined text-xl text-on-surface-variant"
+                        className="material-symbols-outlined text-xl text-neutral-500"
                         style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
                       >
                         face_retouching_off
                       </span>
-                      <p className="text-sm text-on-surface-variant">
+                      <p className="text-sm text-neutral-500">
                         No face detected — comparison skipped.
                       </p>
                     </div>
@@ -559,11 +536,11 @@ function Tool() {
                     ref.comparisons.map((comp, j) => (
                       <div
                         key={j}
-                        className="pl-4 border-l-2 border-outline-variant/30 space-y-4"
+                        className="pl-4 border-l-2 border-neutral-200 space-y-4"
                       >
-                        <p className="text-sm font-medium text-on-surface-variant">
+                        <p className="text-sm font-medium text-neutral-500">
                           vs. protected{' '}
-                          <span className="text-on-surface">
+                          <span className="text-neutral-900">
                             {comp.tweaked_filename}
                           </span>
                         </p>
@@ -571,13 +548,11 @@ function Tool() {
                           <ScoreBar
                             label="DeepFace"
                             score={comp.deepface.similarity}
-                            beforeScore={comp.before_deepface.similarity}
                             subtitle={`${comp.deepface.verified ? 'Match detected' : 'No match'} (${comp.deepface.model})`}
                           />
                           <ScoreBar
                             label="InsightFace"
                             score={comp.insightface.similarity}
-                            beforeScore={comp.before_insightface.similarity}
                           />
                         </div>
                       </div>
