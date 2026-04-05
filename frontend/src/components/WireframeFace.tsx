@@ -6,7 +6,7 @@ import * as THREE from 'three'
 const BASE = import.meta.env.BASE_URL
 
 /** How far vertices fly when dissolving */
-const SCATTER_RADIUS = 25
+const SCATTER_RADIUS = 5
 /** Scale applied to the loaded model */
 const MODEL_SCALE = 2
 /** Lerp speed for dissolve / reassemble */
@@ -105,7 +105,7 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
       <meshBasicMaterial
         ref={matRef}
         wireframe
-        color="#ffffff"
+        color="#00685f"
         transparent
         opacity={1}
       />
@@ -125,22 +125,17 @@ export default function WireframeFace() {
 
   return (
     <div
-      className="w-full h-full min-h-[320px] relative"
+      className="w-full h-full min-h-[320px]"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
-        style={{ width: '400%', height: '400%' }}
+      <Canvas
+        camera={{ position: [0, 0, 3.5], fov: 50 }}
+        style={{ background: 'transparent', overflow: 'visible' }}
+        gl={{ alpha: true, antialias: true }}
       >
-        <Canvas
-          camera={{ position: [0, 0, 3.5 * 4], fov: 50 }}
-          style={{ background: 'transparent', overflow: 'visible' }}
-          gl={{ alpha: true, antialias: true }}
-        >
-          <FaceMesh dissolve={hovered} />
-        </Canvas>
-      </div>
+        <FaceMesh dissolve={hovered} />
+      </Canvas>
     </div>
   )
 }
