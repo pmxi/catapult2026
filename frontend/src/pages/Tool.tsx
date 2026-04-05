@@ -51,6 +51,7 @@ interface ProcessResponse {
 function Tool() {
   const [originalFiles, setOriginalFiles] = useState<File[]>([])
   const [referenceFiles, setReferenceFiles] = useState<File[]>([])
+  const [mapperScale, setMapperScale] = useState<number>(0.3)
   const [results, setResults] = useState<ProcessResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [elapsed, setElapsed] = useState<number | null>(null)
@@ -101,6 +102,7 @@ function Tool() {
       const formData = new FormData()
       originalFiles.forEach((f) => formData.append('original_files', f))
       referenceFiles.forEach((f) => formData.append('reference_files', f))
+      formData.append('mapper_scale', mapperScale.toString())
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL || ''}/api/process`,
@@ -141,15 +143,15 @@ function Tool() {
   }
 
   const similarityColor = (score: number) => {
-    if (score < 0.3) return 'text-success'
-    if (score < 0.6) return 'text-warning'
-    return 'text-error'
+    if (score < 0.5) return 'text-green-500'
+    if (score < 0.8) return 'text-orange-500'
+    return 'text-red-500'
   }
 
   const similarityBarColor = (score: number) => {
-    if (score < 0.3) return 'bg-success'
-    if (score < 0.6) return 'bg-warning'
-    return 'bg-error'
+    if (score < 0.5) return 'bg-green-500'
+    if (score < 0.8) return 'bg-orange-500'
+    return 'bg-red-500'
   }
 
   const getPreviewUrl = (file: File) => URL.createObjectURL(file)
@@ -332,11 +334,37 @@ function Tool() {
         </div>
       </section>
 
+      {/* Anonymity Level */}
+      <section className="mb-12 p-6 md:p-8 bg-surface-container-lowest rounded-[1rem] border border-outline-variant/30 text-base shadow-sm">
+        <h2 className="font-headline text-2xl font-bold mb-2">Anonymity Level</h2>
+        <p className="text-on-surface-variant mb-6 leading-relaxed">
+          Adjust the strength of the protection. <strong className="text-on-surface">1 represents maximum anonymity</strong>, while <strong className="text-on-surface">0 is minimum anonymity</strong>. We recommend a value between <strong className="text-on-surface">0.2 to 0.4</strong> for the best balance of protection and visual quality.
+        </p>
+        <div className="flex items-center gap-6">
+          <span className="font-bold text-lg text-primary opacity-50">0</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={mapperScale}
+            onChange={(e) => setMapperScale(parseFloat(e.target.value))}
+            className="flex-1 h-3 bg-surface-container-high rounded-full appearance-none cursor-pointer accent-primary"
+          />
+          <span className="font-bold text-lg text-primary">1</span>
+        </div>
+        <div className="mt-4 text-center">
+          <span className="inline-block bg-primary/10 text-primary px-4 py-1.5 rounded-full font-bold text-lg border border-primary/20">
+            {mapperScale.toFixed(2)}
+          </span>
+        </div>
+      </section>
+
       {/* Process Button */}
       <button
         onClick={handleProcess}
         disabled={loading || originalFiles.length === 0}
-        className="w-full bg-accent text-white py-5 rounded-full text-xl font-bold hover:bg-accent-hover hover:scale-[1.01] active:scale-95 transition-all shadow-lg shadow-accent/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-3"
+        className="w-full bg-primary text-white py-5 rounded-full text-xl font-bold hover:bg-primary-dark hover:scale-[1.01] active:scale-95 transition-all shadow-lg shadow-primary/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-3"
       >
         <span>
           {loading
@@ -382,7 +410,7 @@ function Tool() {
                 Protection Analysis
               </h2>
               <p className="text-neutral-700 text-lg">
-                Comparing original vs. protected — lower similarity means
+                Showing similarity with the original photo — lower similarity means
                 stronger protection.
               </p>
             </div>
