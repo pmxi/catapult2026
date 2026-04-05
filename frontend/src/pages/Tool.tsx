@@ -28,6 +28,7 @@ interface ProtectedResult {
   tweaked_annotated_url?: string | null
   tweaked_face_url?: string | null
   protection: ScorePair | null
+  baseline: ScorePair | null
 }
 
 interface ReferenceComparison {
@@ -40,6 +41,8 @@ interface ReferenceComparison {
     tweaked_filename: string
     deepface: ScorePair['deepface']
     insightface: ScorePair['insightface']
+    before_deepface: ScorePair['deepface']
+    before_insightface: ScorePair['insightface']
   }[]
 }
 
@@ -157,20 +160,38 @@ function Tool() {
   const ScoreBar = ({
     label,
     score,
+    beforeScore,
     subtitle,
   }: {
     label: string
     score: number
+    beforeScore?: number
     subtitle?: string
   }) => (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="font-bold">{label}</span>
-        <span className={`font-bold ${similarityColor(score)}`}>
-          {(score * 100).toFixed(1)}%
-        </span>
+        <div className="flex items-center gap-2">
+          {beforeScore !== undefined && (
+            <>
+              <span className="text-sm text-on-surface-variant line-through">
+                {(beforeScore * 100).toFixed(1)}%
+              </span>
+              <span className="text-on-surface-variant">→</span>
+            </>
+          )}
+          <span className={`font-bold ${similarityColor(score)}`}>
+            {(score * 100).toFixed(1)}%
+          </span>
+        </div>
       </div>
       <div className="relative h-3 bg-surface-container rounded-full overflow-hidden">
+        {beforeScore !== undefined && (
+          <div
+            className="absolute inset-y-0 left-0 bg-gray-300 rounded-full transition-all duration-500"
+            style={{ width: `${Math.max(2, beforeScore * 100)}%` }}
+          />
+        )}
         <div
           className={`absolute inset-y-0 left-0 ${similarityBarColor(score)} rounded-full transition-all duration-500`}
           style={{ width: `${Math.max(2, score * 100)}%` }}
@@ -443,11 +464,13 @@ function Tool() {
                       <ScoreBar
                         label="DeepFace"
                         score={pr.protection!.deepface.similarity}
+                        beforeScore={pr.baseline?.deepface.similarity}
                         subtitle={`${pr.protection!.deepface.verified ? 'Match detected' : 'No match'} (${pr.protection!.deepface.model})`}
                       />
                       <ScoreBar
                         label="InsightFace"
                         score={pr.protection!.insightface.similarity}
+                        beforeScore={pr.baseline?.insightface.similarity}
                       />
 
                       {/* Face crops */}
@@ -548,11 +571,13 @@ function Tool() {
                           <ScoreBar
                             label="DeepFace"
                             score={comp.deepface.similarity}
+                            beforeScore={comp.before_deepface.similarity}
                             subtitle={`${comp.deepface.verified ? 'Match detected' : 'No match'} (${comp.deepface.model})`}
                           />
                           <ScoreBar
                             label="InsightFace"
                             score={comp.insightface.similarity}
+                            beforeScore={comp.before_insightface.similarity}
                           />
                         </div>
                       </div>

@@ -41,6 +41,9 @@ async def process_images(
     # Only images with detected faces participate in reference comparisons
     tweaked_face_paths: list[tuple[str, str, str]] = []  # (filename, face_path, face_padded_path)
 
+    # Store original face paths for reference "before" comparisons
+    orig_face_paths: list[tuple[str, str, str]] = []  # (filename, face_path, face_padded_path)
+
     for orig_path, orig_file in zip(original_paths, original_files):
         tweaked_path = tweaker.tweak(orig_path)
         name = Path(orig_file.filename or "image.jpg").stem
@@ -59,16 +62,25 @@ async def process_images(
                 "skipped": True,
                 "skip_reason": "No face detected",
                 "protection": None,
+                "baseline": None,
             })
             continue
 
         # Reuse the same bbox on the tweaked image (no re-detection needed)
         tweaked_det = detector.extract_with_bbox(str(tweaked_path), orig_det["bbox"])
 
+        # "After" — original vs tweaked (lower = better protection)
         protection = comparator.compare(
             orig_det["face_path"], tweaked_det["face_path"],
             img1_padded_path=orig_det["face_padded_path"],
             img2_padded_path=tweaked_det["face_padded_path"],
+        )
+
+        # "Before" — original vs itself (baseline, should be ~100%)
+        baseline = comparator.compare(
+            orig_det["face_path"], orig_det["face_path"],
+            img1_padded_path=orig_det["face_padded_path"],
+            img2_padded_path=orig_det["face_padded_path"],
         )
 
         protected_results.append({
@@ -82,7 +94,14 @@ async def process_images(
             "tweaked_annotated_url": tweaked_det.get("annotated_url"),
             "tweaked_face_url": tweaked_det.get("face_url"),
             "protection": protection,
+            "baseline": baseline,
         })
+
+        orig_face_paths.append((
+            orig_file.filename or "unknown",
+            orig_det["face_path"],
+            orig_det["face_padded_path"],
+        ))
 
         tweaked_face_paths.append((
             orig_file.filename or "unknown",
@@ -109,16 +128,26 @@ async def process_images(
                 continue
 
             comparisons = []
-            for tweaked_filename, tweaked_face, tweaked_face_padded in tweaked_face_paths:
-                result = comparator.compare(
+            for i, (tweaked_filename, tweaked_face, tweaked_face_padded) in enumerate(tweaked_face_paths):
+                # "After" — ref vs tweaked
+                after = comparator.compare(
                     ref_det["face_path"], tweaked_face,
                     img1_padded_path=ref_det["face_padded_path"],
                     img2_padded_path=tweaked_face_padded,
                 )
+                # "Before" — ref vs original (untweaked)
+                orig_filename, orig_face, orig_face_padded = orig_face_paths[i]
+                before = comparator.compare(
+                    ref_det["face_path"], orig_face,
+                    img1_padded_path=ref_det["face_padded_path"],
+                    img2_padded_path=orig_face_padded,
+                )
                 comparisons.append({
                     "tweaked_filename": tweaked_filename,
-                    "deepface": result["deepface"],
-                    "insightface": result["insightface"],
+                    "deepface": after["deepface"],
+                    "insightface": after["insightface"],
+                    "before_deepface": before["deepface"],
+                    "before_insightface": before["insightface"],
                 })
 
             reference_comparisons.append({
