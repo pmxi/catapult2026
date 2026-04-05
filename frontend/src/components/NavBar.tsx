@@ -24,12 +24,6 @@ function NavBar() {
               How It Works
             </button>
             <button
-              onClick={() => scrollTo('about')}
-              className="text-slate-600 hover:text-teal-700 transition-colors"
-            >
-              About
-            </button>
-            <button
               onClick={() => scrollTo('team')}
               className="text-slate-600 hover:text-teal-700 transition-colors"
             >
@@ -43,12 +37,6 @@ function NavBar() {
               className="text-slate-600 hover:text-teal-700 transition-colors"
             >
               How It Works
-            </Link>
-            <Link
-              to="/#about"
-              className="text-slate-600 hover:text-teal-700 transition-colors"
-            >
-              About
             </Link>
             <Link
               to="/#team"
