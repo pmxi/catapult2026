@@ -8,6 +8,10 @@ function Footer() {
         <p className="text-slate-400 text-sm font-body font-medium">
           &copy; 2025 VIE. No data stored. Ever.
         </p>
+        <p className="text-slate-500 text-xs font-body mt-2">
+          &ldquo;<a href="https://skfb.ly/oCLrN" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Low Poly Face</a>&rdquo; by ComputerCat is licensed under{' '}
+          <a href="http://creativecommons.org/licenses/by/4.0/" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.
+        </p>
       </div>
       <div className="flex gap-12 text-sm font-body">
         <a

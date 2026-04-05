@@ -28,7 +28,7 @@ function Landing() {
   return (
     <main className="pt-24 overflow-x-hidden bg-background text-on-surface font-body">
       {/* Hero */}
-      <section className="min-h-[70vh] flex items-center px-8 py-24 lg:py-40 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-primary-fixed/20">
+      <section className="min-h-[70vh] flex items-center px-8 py-24 lg:py-40 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-primary-fixed/20 overflow-visible">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
@@ -52,7 +52,7 @@ function Landing() {
           </div>
 
           {/* Wireframe face column */}
-          <div className="order-1 lg:order-2 h-[320px] lg:h-[480px]">
+          <div className="order-1 lg:order-2 h-[480px] lg:h-[640px] overflow-visible">
             <Suspense fallback={null}>
               <WireframeFace />
             </Suspense>
