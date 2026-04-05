@@ -48,6 +48,13 @@ interface ProcessResponse {
   reference_comparisons: ReferenceComparison[]
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://vie.namikas.dev' : '')
+
+const resolveUrl = (url?: string | null) => {
+  if (!url) return url
+  return url.startsWith('http') ? url : `${API_BASE}${url}`
+}
+
 function Tool() {
   const [originalFiles, setOriginalFiles] = useState<File[]>([])
   const [referenceFiles, setReferenceFiles] = useState<File[]>([])
@@ -105,7 +112,7 @@ function Tool() {
       formData.append('mapper_scale', mapperScale.toString())
 
       const res = await fetch(
-        '/api/process',
+        `${API_BASE}/api/process`,
         {
           method: 'POST',
           body: formData,
@@ -118,6 +125,24 @@ function Tool() {
       }
 
       const data: ProcessResponse = await res.json()
+      
+      if (data.protected) {
+        data.protected.forEach(p => {
+          p.original_url = resolveUrl(p.original_url)!
+          p.tweaked_image_url = resolveUrl(p.tweaked_image_url)!
+          p.original_annotated_url = resolveUrl(p.original_annotated_url)
+          p.original_face_url = resolveUrl(p.original_face_url)
+          p.tweaked_annotated_url = resolveUrl(p.tweaked_annotated_url)
+          p.tweaked_face_url = resolveUrl(p.tweaked_face_url)
+        })
+      }
+      if (data.reference_comparisons) {
+        data.reference_comparisons.forEach(r => {
+          r.reference_annotated_url = resolveUrl(r.reference_annotated_url)
+          r.reference_face_url = resolveUrl(r.reference_face_url)
+        })
+      }
+
       setResults(data)
       setElapsed(Math.round((Date.now() - start) / 1000))
     } catch (err) {
