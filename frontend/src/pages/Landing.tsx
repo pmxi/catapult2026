@@ -203,10 +203,10 @@ function Landing() {
       </section>
 
       {/* For every reason */}
-      <section className="py-24 lg:py-32 px-8 bg-[#1a1c1c]">
-        <div className="max-w-4xl mx-auto space-y-12">
-          <h2 className="text-4xl lg:text-5xl font-headline font-bold text-white">
-            For every reason.
+      <section className="py-12 lg:py-16 px-8 bg-white">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <h2 className="text-4xl lg:text-5xl font-headline font-bold">
+            ...for any reason.
           </h2>
           <div className="space-y-6">
             {[
@@ -237,9 +237,9 @@ function Landing() {
                 />
                 <Icon
                   name="arrow_forward"
-                  className="text-white/40 text-5xl hidden sm:block shrink-0"
+                  className="text-on-surface/40 text-5xl hidden sm:block shrink-0"
                 />
-                <p className="text-xl font-medium text-white/80">{item.desc}</p>
+                <p className="text-xl font-medium text-on-surface-variant">{item.desc}</p>
               </div>
             ))}
           </div>
