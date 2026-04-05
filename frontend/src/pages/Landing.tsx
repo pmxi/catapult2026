@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+
+const WireframeFace = lazy(() => import('../components/WireframeFace'))
 
 const BASE = import.meta.env.BASE_URL
 
@@ -25,24 +28,34 @@ function Landing() {
   return (
     <main className="pt-24 overflow-x-hidden bg-background text-on-surface font-body">
       {/* Hero */}
-      <section className="min-h-[70vh] flex items-center px-8 py-24 lg:py-40 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-primary-fixed/20">
-        <div className="max-w-3xl mx-auto space-y-8 text-center">
-          <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight">
-            Make your photos{' '}
-            <span className="text-primary">unrecognizable to AI.</span>
-          </h1>
-          <p className="text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            VIE perturbs your photos so facial recognition models can't identify
-            you — while the images still look normal to the human eye. Upload a
-            photo, get a protected version back in seconds.
-          </p>
-          <div className="pt-4">
-            <Link
-              to="/tool"
-              className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full text-lg font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20"
-            >
-              Try It Now &rarr;
-            </Link>
+      <section className="min-h-[70vh] flex items-center px-8 py-24 lg:py-40 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-primary-fixed/20 overflow-visible">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Text column */}
+          <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
+            <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight">
+              Make your photos{' '}
+              <span className="text-primary">unrecognizable to AI.</span>
+            </h1>
+            <p className="text-xl text-on-surface-variant max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              VIE perturbs your photos so facial recognition models can't identify
+              you — while the images still look normal to the human eye. Upload a
+              photo, get a protected version back in seconds.
+            </p>
+            <div className="pt-4">
+              <Link
+                to="/tool"
+                className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full text-lg font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20"
+              >
+                Try It Now &rarr;
+              </Link>
+            </div>
+          </div>
+
+          {/* Wireframe face column */}
+          <div className="order-1 lg:order-2 h-[480px] lg:h-[640px] overflow-visible">
+            <Suspense fallback={null}>
+              <WireframeFace />
+            </Suspense>
           </div>
         </div>
       </section>
