@@ -1,3 +1,4 @@
+import logging
 import uuid
 import shutil
 from pathlib import Path
@@ -5,14 +6,14 @@ from typing import Optional
 
 from fastapi import APIRouter, File, UploadFile
 
-from app.services.tweaker import TweakerService
-from app.services.comparison import ComparisonService
-from app.services.detection import DetectionService
+from vie_backend.config import UPLOAD_DIR
+from vie_backend.services.tweaker import TweakerService
+from vie_backend.services.comparison import ComparisonService
+from vie_backend.services.detection import DetectionService
+
+logger = logging.getLogger("vie_backend")
 
 router = APIRouter()
-
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
 
 tweaker = TweakerService()
 comparator = ComparisonService()
@@ -44,6 +45,11 @@ async def process_images(
 
         orig_det = detector.detect_and_extract(str(orig_path))
         tweaked_det = detector.detect_and_extract(str(tweaked_path))
+
+        if orig_det.get("error"):
+            logger.warning("Face detection failed on %s: %s", orig_file.filename, orig_det["error"])
+        if tweaked_det.get("error"):
+            logger.warning("Face detection failed on tweaked %s: %s", orig_file.filename, tweaked_det["error"])
 
         orig_face = orig_det.get("face_path") or str(orig_path)
         tweaked_face = tweaked_det.get("face_path") or str(tweaked_path)

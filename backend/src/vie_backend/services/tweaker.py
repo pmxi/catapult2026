@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-UPLOAD_DIR = Path("uploads")
+from vie_backend.config import UPLOAD_DIR
 
 
 class TweakerService:

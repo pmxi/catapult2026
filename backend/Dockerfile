@@ -17,5 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Add src to Python path so vie_backend is importable
+ENV PYTHONPATH="/app/src"
+
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "vie_backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
