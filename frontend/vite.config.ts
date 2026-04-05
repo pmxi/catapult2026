@@ -9,11 +9,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://vie.namikas.dev',
+        target: 'https://vie.namikas.dev',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://vie.namikas.dev',
+        target: 'https://vie.namikas.dev',
         changeOrigin: true,
       },
     },
