@@ -124,23 +124,72 @@ class DetectionService:
         annotated = img.copy()
         cv2.rectangle(annotated, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
-        # Extract face — tight crop, no padding
+        # Extract face — tight crop (for DeepFace)
         fx1 = max(0, x)
         fy1 = max(0, y)
         fx2 = min(iw, x + w)
         fy2 = min(ih, y + h)
         face_crop = img[fy1:fy2, fx1:fx2]
 
-        # Save both
+        # Padded crop — 50% padding on each side (for InsightFace)
+        pad_w = int(w * 0.5)
+        pad_h = int(h * 0.5)
+        px1 = max(0, x - pad_w)
+        py1 = max(0, y - pad_h)
+        px2 = min(iw, x + w + pad_w)
+        py2 = min(ih, y + h + pad_h)
+        face_crop_padded = img[py1:py2, px1:px2]
+
+        # Save all
         uid = uuid.uuid4().hex
         annotated_path = UPLOAD_DIR / f"annotated_{uid}.jpg"
         face_path = UPLOAD_DIR / f"face_{uid}.jpg"
+        face_padded_path = UPLOAD_DIR / f"face_padded_{uid}.jpg"
         cv2.imwrite(str(annotated_path), annotated)
         cv2.imwrite(str(face_path), face_crop)
+        cv2.imwrite(str(face_padded_path), face_crop_padded)
 
         return {
             "annotated_url": f"/uploads/{annotated_path.name}",
             "face_url": f"/uploads/{face_path.name}",
             "face_path": str(face_path),
+            "face_padded_path": str(face_padded_path),
             "bbox": {"x": x, "y": y, "w": w, "h": h},
+        }
+
+    def extract_with_bbox(self, image_path: str, bbox: dict) -> dict:
+        """Extract face from an image using a pre-computed bounding box (no detection)."""
+        img = _load_image_cv2(image_path)
+        ih, iw = img.shape[:2]
+
+        x, y, w, h = bbox["x"], bbox["y"], bbox["w"], bbox["h"]
+
+        # Annotated
+        annotated = img.copy()
+        cv2.rectangle(annotated, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+        # Tight crop
+        fx1, fy1 = max(0, x), max(0, y)
+        fx2, fy2 = min(iw, x + w), min(ih, y + h)
+        face_crop = img[fy1:fy2, fx1:fx2]
+
+        # Padded crop (50%)
+        pad_w, pad_h = int(w * 0.5), int(h * 0.5)
+        px1, py1 = max(0, x - pad_w), max(0, y - pad_h)
+        px2, py2 = min(iw, x + w + pad_w), min(ih, y + h + pad_h)
+        face_crop_padded = img[py1:py2, px1:px2]
+
+        uid = uuid.uuid4().hex
+        annotated_path = UPLOAD_DIR / f"annotated_{uid}.jpg"
+        face_path = UPLOAD_DIR / f"face_{uid}.jpg"
+        face_padded_path = UPLOAD_DIR / f"face_padded_{uid}.jpg"
+        cv2.imwrite(str(annotated_path), annotated)
+        cv2.imwrite(str(face_path), face_crop)
+        cv2.imwrite(str(face_padded_path), face_crop_padded)
+
+        return {
+            "annotated_url": f"/uploads/{annotated_path.name}",
+            "face_url": f"/uploads/{face_path.name}",
+            "face_path": str(face_path),
+            "face_padded_path": str(face_padded_path),
         }

@@ -21,17 +21,21 @@ interface ProtectedResult {
   original_url: string
   tweaked_image_url: string
   download_name: string
-  original_annotated_url: string | null
-  original_face_url: string | null
-  tweaked_annotated_url: string | null
-  tweaked_face_url: string | null
-  protection: ScorePair
+  skipped?: boolean
+  skip_reason?: string
+  original_annotated_url?: string | null
+  original_face_url?: string | null
+  tweaked_annotated_url?: string | null
+  tweaked_face_url?: string | null
+  protection: ScorePair | null
 }
 
 interface ReferenceComparison {
   reference_filename: string
-  reference_annotated_url: string | null
-  reference_face_url: string | null
+  skipped?: boolean
+  skip_reason?: string
+  reference_annotated_url?: string | null
+  reference_face_url?: string | null
   comparisons: {
     tweaked_filename: string
     deepface: ScorePair['deepface']
@@ -392,72 +396,90 @@ function Tool() {
                   <h3 className="font-headline text-xl font-bold">
                     {pr.original_filename}
                   </h3>
-                  <button
-                    onClick={() =>
-                      handleDownload(pr.tweaked_image_url, pr.download_name)
-                    }
-                    className="bg-primary text-on-primary px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity text-sm"
-                  >
-                    <span
-                      className="material-symbols-outlined text-lg"
-                      style={{
-                        fontVariationSettings: "'FILL' 0, 'wght' 400",
-                      }}
+                  {!pr.skipped && (
+                    <button
+                      onClick={() =>
+                        handleDownload(pr.tweaked_image_url, pr.download_name)
+                      }
+                      className="bg-primary text-on-primary px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity text-sm"
                     >
-                      download
-                    </span>
-                    Download {pr.download_name}
-                  </button>
+                      <span
+                        className="material-symbols-outlined text-lg"
+                        style={{
+                          fontVariationSettings: "'FILL' 0, 'wght' 400",
+                        }}
+                      >
+                        download
+                      </span>
+                      Download {pr.download_name}
+                    </button>
+                  )}
                 </div>
 
-                {/* Slider + Scores side by side */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-2">
-                    <ComparisonSlider
-                      originalUrl={`${import.meta.env.VITE_API_URL || ''}${pr.original_url}`}
-                      protectedUrl={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_image_url}`}
-                    />
-                  </div>
-                  <div className="flex flex-col justify-center space-y-6">
-                    <ScoreBar
-                      label="DeepFace"
-                      score={pr.protection.deepface.similarity}
-                      subtitle={`${pr.protection.deepface.verified ? 'Match detected' : 'No match'} (${pr.protection.deepface.model})`}
-                    />
-                    <ScoreBar
-                      label="InsightFace"
-                      score={pr.protection.insightface.similarity}
-                    />
-
-                    {/* Face crops */}
-                    <div className="flex gap-3 mt-2">
-                      {pr.original_face_url && (
-                        <div>
-                          <p className="text-xs text-on-surface-variant mb-1">
-                            Original
-                          </p>
-                          <img
-                            src={`${import.meta.env.VITE_API_URL || ''}${pr.original_face_url}`}
-                            alt="Original face"
-                            className="h-20 rounded-lg border border-outline-variant"
-                          />
-                        </div>
-                      )}
-                      {pr.tweaked_face_url && (
-                        <div>
-                          <p className="text-xs text-on-surface-variant mb-1">
-                            Protected
-                          </p>
-                          <img
-                            src={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_face_url}`}
-                            alt="Tweaked face"
-                            className="h-20 rounded-lg border border-outline-variant"
-                          />
-                        </div>
-                      )}
+                {pr.skipped ? (
+                  <div className="flex items-center gap-3 p-6 bg-surface-container rounded-[1rem] border border-outline-variant/20">
+                    <span
+                      className="material-symbols-outlined text-2xl text-on-surface-variant"
+                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
+                    >
+                      face_retouching_off
+                    </span>
+                    <div>
+                      <p className="font-semibold text-on-surface">No face detected</p>
+                      <p className="text-sm text-on-surface-variant">
+                        This image was skipped because no face could be found.
+                      </p>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                      <ComparisonSlider
+                        originalUrl={`${import.meta.env.VITE_API_URL || ''}${pr.original_url}`}
+                        protectedUrl={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_image_url}`}
+                      />
+                    </div>
+                    <div className="flex flex-col justify-center space-y-6">
+                      <ScoreBar
+                        label="DeepFace"
+                        score={pr.protection!.deepface.similarity}
+                        subtitle={`${pr.protection!.deepface.verified ? 'Match detected' : 'No match'} (${pr.protection!.deepface.model})`}
+                      />
+                      <ScoreBar
+                        label="InsightFace"
+                        score={pr.protection!.insightface.similarity}
+                      />
+
+                      {/* Face crops */}
+                      <div className="flex gap-3 mt-2">
+                        {pr.original_face_url && (
+                          <div>
+                            <p className="text-xs text-on-surface-variant mb-1">
+                              Original
+                            </p>
+                            <img
+                              src={`${import.meta.env.VITE_API_URL || ''}${pr.original_face_url}`}
+                              alt="Original face"
+                              className="h-20 rounded-lg border border-outline-variant"
+                            />
+                          </div>
+                        )}
+                        {pr.tweaked_face_url && (
+                          <div>
+                            <p className="text-xs text-on-surface-variant mb-1">
+                              Protected
+                            </p>
+                            <img
+                              src={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_face_url}`}
+                              alt="Tweaked face"
+                              className="h-20 rounded-lg border border-outline-variant"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </section>
@@ -498,30 +520,44 @@ function Tool() {
                     </div>
                   </div>
 
-                  {ref.comparisons.map((comp, j) => (
-                    <div
-                      key={j}
-                      className="pl-4 border-l-2 border-outline-variant/30 space-y-4"
-                    >
-                      <p className="text-sm font-medium text-on-surface-variant">
-                        vs. protected{' '}
-                        <span className="text-on-surface">
-                          {comp.tweaked_filename}
-                        </span>
+                  {ref.skipped ? (
+                    <div className="flex items-center gap-3 p-4 bg-surface-container rounded-xl border border-outline-variant/20">
+                      <span
+                        className="material-symbols-outlined text-xl text-on-surface-variant"
+                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
+                      >
+                        face_retouching_off
+                      </span>
+                      <p className="text-sm text-on-surface-variant">
+                        No face detected — comparison skipped.
                       </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ScoreBar
-                          label="DeepFace"
-                          score={comp.deepface.similarity}
-                          subtitle={`${comp.deepface.verified ? 'Match detected' : 'No match'} (${comp.deepface.model})`}
-                        />
-                        <ScoreBar
-                          label="InsightFace"
-                          score={comp.insightface.similarity}
-                        />
-                      </div>
                     </div>
-                  ))}
+                  ) : (
+                    ref.comparisons.map((comp, j) => (
+                      <div
+                        key={j}
+                        className="pl-4 border-l-2 border-outline-variant/30 space-y-4"
+                      >
+                        <p className="text-sm font-medium text-on-surface-variant">
+                          vs. protected{' '}
+                          <span className="text-on-surface">
+                            {comp.tweaked_filename}
+                          </span>
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <ScoreBar
+                            label="DeepFace"
+                            score={comp.deepface.similarity}
+                            subtitle={`${comp.deepface.verified ? 'Match detected' : 'No match'} (${comp.deepface.model})`}
+                          />
+                          <ScoreBar
+                            label="InsightFace"
+                            score={comp.insightface.similarity}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               ))}
             </section>
