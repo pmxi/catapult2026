@@ -125,7 +125,7 @@ export default function WireframeFace() {
 
   return (
     <div
-      className="w-full h-full min-h-[320px] overflow-visible"
+      className="w-full h-full min-h-[320px]"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >

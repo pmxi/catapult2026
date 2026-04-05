@@ -6,6 +6,17 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* ── Logo scroll animation ── */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite reverse;
+  width: max-content;
+}
+
 /* ── Scan overlay (image thumbnails during processing) ── */
 
 @keyframes scan-h {
