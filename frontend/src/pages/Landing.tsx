@@ -107,15 +107,16 @@ function DemoSlideshow() {
 
 function Landing() {
   return (
-    <main className="pt-24 overflow-x-hidden bg-background text-on-surface font-body">
+    <main className=" overflow-x-hidden bg-background text-on-surface font-body">
       {/* Hero */}
-      <section className="min-h-[70vh] flex items-center px-8 py-24 lg:py-40 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-primary-fixed/20 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Text column */}
-          <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
-            <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight">
-              Make your photos{' '}
-              <span className="text-primary">unrecognizable to AI.</span>
+      <section className="flex flex-col bg-gradient-to-br px-8  from-surface-container-lowest via-surface-container-low to-primary-fixed/20 overflow-hidden">
+        <div className="min-h-screen flex items-center py-24 lg:py-40">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Text column */}
+            <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
+              <h1 className="text-5xl lg:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight">
+                Make your photos{' '}
+                <span className="text-primary">unrecognizable to AI.</span>
             </h1>
             <p className="text-xl text-on-surface-variant max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               VIE perturbs your photos so facial recognition models can't identify
@@ -139,11 +140,12 @@ function Landing() {
             </Suspense>
           </div>
         </div>
-      </section>
+        </div>
+      
 
       {/* The Problem */}
-      <section id="how-it-works" className="py-24 lg:py-32 px-8 bg-surface-container-lowest">
-        <div className="max-w-3xl mx-auto space-y-6">
+      {/* <section id="how-it-works" className="py-24 lg:py-32 px-8 bg-surface-container-lowest"> */}
+        <div className="max-w-3xl mx-auto space-y-6 pb-24 lg:pb-40">
           <h2 className="text-4xl lg:text-5xl font-headline font-bold">
             Facial recognition is everywhere.
           </h2>
