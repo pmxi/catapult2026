@@ -194,16 +194,20 @@ function Landing() {
             Built at
           </p>
           <div className="flex flex-wrap justify-center items-center gap-16">
-            <img
-              src={`${BASE}images/purdue-logo.svg`}
-              alt="Purdue University"
-              className="h-12"
-            />
-            <img
-              src={`${BASE}images/catapult-logo.svg`}
-              alt="Catapult Hackathon"
-              className="h-10 brightness-0"
-            />
+            <a href="https://purdue.edu" target="_blank" rel="noopener noreferrer">
+              <img
+                src={`${BASE}images/purdue-logo.svg`}
+                alt="Purdue University"
+                className="h-12 hover:opacity-80 transition-opacity"
+              />
+            </a>
+            <a href="https://catapulthack.com/" target="_blank" rel="noopener noreferrer">
+              <img
+                src={`${BASE}images/catapult-logo.svg`}
+                alt="Catapult Hackathon"
+                className="h-10 brightness-0 hover:opacity-80 transition-opacity"
+              />
+            </a>
           </div>
         </div>
       </section>
