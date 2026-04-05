@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Form
 
 from vie_backend.config import UPLOAD_DIR
 from vie_backend.services.tweaker import TweakerService
@@ -33,6 +33,7 @@ def save_upload(file: UploadFile) -> Path:
 async def process_images(
     original_files: list[UploadFile] = File(...),
     reference_files: Optional[list[UploadFile]] = File(None),
+    mapper_scale: Optional[float] = Form(0.3),
 ):
     original_paths = [save_upload(f) for f in original_files]
 
@@ -45,7 +46,7 @@ async def process_images(
     orig_face_paths: list[tuple[str, str, str]] = []  # (filename, face_path, face_padded_path)
 
     for orig_path, orig_file in zip(original_paths, original_files):
-        tweaked_path = tweaker.tweak(orig_path)
+        tweaked_path = tweaker.tweak(orig_path, mapper_scale=mapper_scale)
         name = Path(orig_file.filename or "image.jpg").stem
         ext = Path(orig_file.filename or "image.jpg").suffix
 

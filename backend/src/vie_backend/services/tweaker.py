@@ -15,15 +15,17 @@ class TweakerService:
     """Applies adversarial perturbation to face images using the PrivateVQGAN model."""
 
     def __init__(self):
-        self._face_tweaker = FaceTweaker(shift_radius=0.85, use_mapper=True)
+        self._face_tweaker = FaceTweaker(
+            use_mapper=True, mapper_scale=0.6
+        )
 
-    def tweak(self, image_path: Path) -> Path:
+    def tweak(self, image_path: Path, mapper_scale: float | None = None) -> Path:
         """Apply adversarial perturbation and save the result.
 
         Returns the path to the tweaked image.
         """
         try:
-            result_bgr = self._face_tweaker.tweak(str(image_path))
+            result_bgr = self._face_tweaker.tweak(str(image_path), mapper_scale=mapper_scale)
         except Exception as e:
             logger.error(
                 "Model inference failed for %s: %s — falling back to watermark",

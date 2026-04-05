@@ -105,7 +105,7 @@ function Tool() {
       formData.append('mapper_scale', mapperScale.toString())
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || ''}/api/process`,
+        '/api/process',
         {
           method: 'POST',
           body: formData,
@@ -129,10 +129,7 @@ function Tool() {
   }
 
   const handleDownload = async (tweakedUrl: string, downloadName: string) => {
-    const urlPrefix = tweakedUrl.startsWith('http')
-      ? ''
-      : import.meta.env.VITE_API_URL || ''
-    const res = await fetch(`${urlPrefix}${tweakedUrl}`)
+    const res = await fetch(tweakedUrl)
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -463,8 +460,8 @@ function Tool() {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                       <ComparisonSlider
-                        originalUrl={`${import.meta.env.VITE_API_URL || ''}${pr.original_url}`}
-                        protectedUrl={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_image_url}`}
+                        originalUrl={pr.original_url}
+                        protectedUrl={pr.tweaked_image_url}
                       />
                     </div>
                     <div className="flex flex-col justify-center space-y-6">
@@ -486,7 +483,7 @@ function Tool() {
                               Original
                             </p>
                             <img
-                              src={`${import.meta.env.VITE_API_URL || ''}${pr.original_face_url}`}
+                              src={pr.original_face_url}
                               alt="Original face"
                               className="h-20 rounded-lg border border-neutral-200"
                             />
@@ -498,7 +495,7 @@ function Tool() {
                               Protected
                             </p>
                             <img
-                              src={`${import.meta.env.VITE_API_URL || ''}${pr.tweaked_face_url}`}
+                              src={pr.tweaked_face_url}
                               alt="Tweaked face"
                               className="h-20 rounded-lg border border-neutral-200"
                             />
@@ -533,7 +530,7 @@ function Tool() {
                   <div className="flex items-center gap-4">
                     {ref.reference_face_url && (
                       <img
-                        src={`${import.meta.env.VITE_API_URL || ''}${ref.reference_face_url}`}
+                        src={ref.reference_face_url}
                         alt="Reference face"
                         className="h-16 w-16 object-cover rounded-lg border border-neutral-200"
                       />
