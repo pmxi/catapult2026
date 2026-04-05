@@ -1,13 +1,18 @@
-import { useRef, useMemo, useState, useCallback } from 'react'
+import { useRef, useMemo, useState, useCallback, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
+const BASE = import.meta.env.BASE_URL
+
 /** How far vertices fly when dissolving */
-const SCATTER_RADIUS = 2.5
+const SCATTER_RADIUS = 5
+/** Scale applied to the loaded model */
+const MODEL_SCALE = 2
 /** Lerp speed for dissolve / reassemble */
 const LERP_SPEED = 2.5
 /** Slow idle rotation speed (radians/s) */
-const IDLE_ROTATION = 0.15
+const IDLE_ROTATION = 0.075
 
 // ---------------------------------------------------------------------------
 // Inner mesh — lives inside the R3F Canvas
@@ -16,20 +21,28 @@ const IDLE_ROTATION = 0.15
 function FaceMesh({ dissolve }: { dissolve: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.MeshBasicMaterial>(null)
+  const gltf = useGLTF(`${BASE}models/low_poly_face.glb`)
 
-  // Build an icosphere scaled to an oval "face" shape, plus random scatter targets
-  const { basePositions, scatterTargets } = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(1, 4) // ~2500 verts at detail 4
-    // Scale to face-like oval: slightly narrower on x, taller on y
-    const pos = geo.attributes.position as THREE.BufferAttribute
+  // Extract geometry from the loaded GLTF and compute scatter targets
+  const { geometry, basePositions, scatterTargets } = useMemo(() => {
+    let geo: THREE.BufferGeometry | null = null
+    gltf.scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh && !geo) {
+        geo = (child as THREE.Mesh).geometry.clone()
+      }
+    })
+    if (!geo) {
+      geo = new THREE.IcosahedronGeometry(1, 4)
+    }
+
+    const pos = (geo as THREE.BufferGeometry).attributes.position as THREE.BufferAttribute
+    // Scale up the model
     for (let i = 0; i < pos.count; i++) {
-      pos.setX(i, pos.getX(i) * 0.78)
-      pos.setY(i, pos.getY(i) * 1.1)
-      pos.setZ(i, pos.getZ(i) * 0.85)
+      pos.setX(i, pos.getX(i) * MODEL_SCALE)
+      pos.setY(i, pos.getY(i) * MODEL_SCALE)
+      pos.setZ(i, pos.getZ(i) * MODEL_SCALE)
     }
     pos.needsUpdate = true
-
-    // Save a copy as base positions
     const base = new Float32Array(pos.array)
 
     // Pre-compute random scatter directions per vertex
@@ -43,8 +56,16 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
       scatter[i * 3 + 2] = base[i * 3 + 2] + r * Math.cos(phi)
     }
 
-    return { basePositions: base, scatterTargets: scatter }
-  }, [])
+    return { geometry: geo as THREE.BufferGeometry, basePositions: base, scatterTargets: scatter }
+  }, [gltf])
+
+  // Attach geometry to mesh and face forward
+  useEffect(() => {
+    if (meshRef.current) {
+      meshRef.current.geometry = geometry
+      meshRef.current.rotation.y = Math.PI
+    }
+  }, [geometry])
 
   // Track current animation progress (0 = assembled, 1 = scattered)
   const progressRef = useRef(0)
@@ -81,7 +102,6 @@ function FaceMesh({ dissolve }: { dissolve: boolean }) {
 
   return (
     <mesh ref={meshRef}>
-      <icosahedronGeometry args={[1, 4]} />
       <meshBasicMaterial
         ref={matRef}
         wireframe
@@ -105,13 +125,13 @@ export default function WireframeFace() {
 
   return (
     <div
-      className="w-full h-full min-h-[320px]"
+      className="w-full h-full min-h-[320px] overflow-visible"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
       <Canvas
-        camera={{ position: [0, 0, 3], fov: 45 }}
-        style={{ background: 'transparent' }}
+        camera={{ position: [0, 0, 3.5], fov: 50 }}
+        style={{ background: 'transparent', overflow: 'visible' }}
         gl={{ alpha: true, antialias: true }}
       >
         <FaceMesh dissolve={hovered} />
